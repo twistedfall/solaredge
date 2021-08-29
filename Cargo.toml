@@ -1,0 +1,6 @@
+[workspace]
+members = [
+	"solaredge",
+	"solaredge-reqwest",
+	"solaredge-test",
+]
