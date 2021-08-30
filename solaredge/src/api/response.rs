@@ -120,8 +120,8 @@ pub struct SiteDataPeriodTop {
 #[serde(rename_all = "camelCase")]
 pub struct SiteDateValue {
 	#[serde(with = "DateTimeSerde")]
-	date: NaiveDateTime,
-	value: Option<f64>,
+	pub date: NaiveDateTime,
+	pub value: Option<f64>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -142,9 +142,9 @@ pub struct SiteEnergyTop {
 #[serde(rename_all = "camelCase")]
 pub struct SiteLifetimeEnergy {
 	#[serde(with = "DateSerde")]
-	date: NaiveDate,
-	energy: f64,
-	unit: String,
+	pub date: NaiveDate,
+	pub energy: f64,
+	pub unit: String,
 }
 
 #[derive(Debug, Deserialize)]
