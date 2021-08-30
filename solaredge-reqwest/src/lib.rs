@@ -7,6 +7,7 @@ use url::Url;
 use solaredge::HttpClientAdapter;
 
 /// For usage with `solaredge::Client`, see [solaredge](https://crates.io/crates/solaredge) crate
+#[derive(Clone, Debug)]
 pub struct ReqwestAdapter {
 	client: reqwest::Client,
 }
