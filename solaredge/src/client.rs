@@ -9,6 +9,24 @@ use crate::{
 	HttpClientAdapter,
 };
 
+/// Client for accessing SolarEdge API
+///
+/// To be able to use it you'll need to request the API key from the Admin panel of your SolarEdge
+/// installation. Then create it like this:
+/// ```
+/// # // Dummy implementation for doctests only, do not use as reference, use crate `solaredge-reqwest` instead
+/// # mod solaredge_reqwest {
+/// #    #[derive(Default)]
+/// #    pub struct ReqwestAdapter;
+/// #    #[async_trait::async_trait]
+/// #    impl solaredge::HttpClientAdapter for ReqwestAdapter {
+/// #       type Error = String;
+/// #       async fn get(&self, url: url::Url) -> Result<String, Self::Error> { Ok("".to_string()) }
+/// #    }
+/// # }
+/// let client = solaredge::Client::<solaredge_reqwest::ReqwestAdapter>::new("API_KEY");
+/// ```
+#[derive(Clone, Debug)]
 pub struct Client<C> {
 	client: C,
 	base_url: Url,
@@ -16,12 +34,44 @@ pub struct Client<C> {
 }
 
 impl<C: HttpClientAdapter> Client<C> {
+	/// Construct a new client using a `HttpClientAdapter::default()` http client implementation
+	///
+	/// # Example
+	/// ```
+	/// # // Dummy implementation for doctests only, do not use as reference, use crate `solaredge-reqwest` instead
+	/// # mod solaredge_reqwest {
+	/// #    #[derive(Default)]
+	/// #    pub struct ReqwestAdapter;
+	/// #    #[async_trait::async_trait]
+	/// #    impl solaredge::HttpClientAdapter for ReqwestAdapter {
+	/// #       type Error = String;
+	/// #       async fn get(&self, url: url::Url) -> Result<String, Self::Error> { Ok("".to_string()) }
+	/// #    }
+	/// # }
+	/// let client = solaredge::Client::<solaredge_reqwest::ReqwestAdapter>::new("API_KEY");
+	/// ```
 	#[inline]
 	pub fn new(api_key: impl Into<String>) -> Self {
 		Self::new_with_client(C::default(), api_key.into())
 	}
 
-	pub fn new_with_client(client: C, api_key: String) -> Client<C> {
+	/// Construct a new client using a custom `HttpClientAdapter` implementation
+	///
+	/// # Example
+	/// ```
+	/// # // Dummy implementation for doctests only, do not use as reference, use crate `solaredge-reqwest` instead
+	/// # mod solaredge_reqwest {
+	/// #    #[derive(Default)]
+	/// #    pub struct ReqwestAdapter;
+	/// #    #[async_trait::async_trait]
+	/// #    impl solaredge::HttpClientAdapter for ReqwestAdapter {
+	/// #       type Error = String;
+	/// #       async fn get(&self, url: url::Url) -> Result<String, Self::Error> { Ok("".to_string()) }
+	/// #    }
+	/// # }
+	/// let client = solaredge::Client::new_with_client(solaredge_reqwest::ReqwestAdapter::default(), "API_KEY".to_string());
+	/// ```
+	pub fn new_with_client(client: C, api_key: String) -> Self {
 		Self {
 			client,
 			base_url: Url::parse("https://monitoringapi.solaredge.com").expect("Static URL parsing failed"),

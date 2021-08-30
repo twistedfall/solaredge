@@ -14,29 +14,26 @@
 //! ```
 //! # // Dummy implementation for doctests only, do not use as reference, use crate `solaredge-reqwest` instead
 //! # mod solaredge_reqwest {
-//! # 	use url::Url;
-//! # 	use std::{pin::Pin, future::Future};
-//! # 	use async_trait::async_trait;
-//! # 	#[derive(Default)]
-//! # 	pub struct ReqwestAdapter;
-//! # 	#[async_trait]
-//! # 	impl solaredge::HttpClientAdapter for ReqwestAdapter {
-//! # 		type Error = String;
-//! # 		async fn get(&self, url: Url) -> Result<String, Self::Error> { Ok("".to_string()) }
-//! # 	}
+//! #    #[derive(Default)]
+//! #    pub struct ReqwestAdapter;
+//! #    #[async_trait::async_trait]
+//! #    impl solaredge::HttpClientAdapter for ReqwestAdapter {
+//! #       type Error = String;
+//! #       async fn get(&self, url: url::Url) -> Result<String, Self::Error> { Ok("".to_string()) }
+//! #    }
 //! # }
 //! use solaredge::{Client, SitesList, SortOrder, SiteStatus};
 //! use solaredge_reqwest::ReqwestAdapter;
 //!
 //! async fn run() -> Result<(), Box<dyn std::error::Error>> {
-//! 		let client = Client::<ReqwestAdapter>::new("API_KEY");
-//! 		let version = client.version_current().await?;
-//! 		let mut p = SitesList::default();
-//! 		p.size = Some(32);
-//! 		p.sort_order = Some(SortOrder::Ascending);
-//! 		p.status = Some(&[SiteStatus::Active, SiteStatus::Pending]);
-//! 		let sites = client.sites_list(&p).await?;
-//! 		Ok(())
+//!    let client = Client::<ReqwestAdapter>::new("API_KEY");
+//!    let version = client.version_current().await?;
+//!    let mut p = SitesList::default();
+//!    p.size = Some(32);
+//!    p.sort_order = Some(SortOrder::Ascending);
+//!    p.status = Some(&[SiteStatus::Active, SiteStatus::Pending]);
+//!    let sites = client.sites_list(&p).await?;
+//!    Ok(())
 //! }
 //! ```
 
