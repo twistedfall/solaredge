@@ -1,7 +1,8 @@
 use async_trait::async_trait;
 use url::Url;
 
-/// Adapter to allow different HTTP clients to be used with the library
+/// Adapter to allow different HTTP clients to be used with the library, to properly implement this
+/// trait, use [async_trait](https://crates.io/crates/async-trait).
 #[async_trait]
 pub trait HttpClientAdapter: Default {
 	/// Error type used by the underlying HTTP library

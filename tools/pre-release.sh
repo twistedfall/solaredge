@@ -2,11 +2,14 @@
 
 set -e
 
-pushd solaredge-reqwest || die
-cargo readme --template=../README.tpl --output=README.md
-popd
+README_TPL="$WORKSPACE_ROOT/README.tpl"
+README="$CRATE_ROOT/README.md"
 
-pushd solaredge || die
-cargo readme --template=../README.tpl --output=README.md
-cp -v README.md ../
-popd
+if [[ "$DRY_RUN" == "false" ]]; then
+	cargo readme --template="$README_TPL" --output="$README"
+	if [[ "$CRATE_NAME" == "solaredge" ]]; then
+		cp -v "$README" "$WORKSPACE_ROOT/"
+	fi
+else
+	echo "Dry run, would generate $README from $README_TPL"
+fi
