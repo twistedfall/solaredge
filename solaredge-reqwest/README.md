@@ -9,7 +9,7 @@ See [full documentation](https://docs.rs/solaredge-reqwest)
 Add this to your Cargo.toml:
 ```
 [dependencies]
-solaredge-reqwest = "0.1.2"
+solaredge-reqwest = "0.1.3"
 ```
 
 HTTP client adapter for [solaredge](https://crates.io/crates/solaredge) based on
