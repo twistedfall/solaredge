@@ -161,11 +161,11 @@ impl<C: HttpClientAdapter> Client<C> {
 
 	/// Return the site total energy produced for a given period.
 	pub async fn site_time_frame_energy(&self, site_id: u64, params: &request::SiteTotalEnergy) -> Result<response::SiteTimeframeEnergy, Error<C::Error>> {
-		trace!("site_total_energy, site_id: {}, params: {:?}", site_id, params);
+		trace!("site_time_frame_energy, site_id: {}, params: {:?}", site_id, params);
 		let url = self.prepare_url(&format!("/site/{}/timeFrameEnergy.json", site_id), params)?;
-		trace!("site_total_energy, url: {}", url);
+		trace!("site_time_frame_energy, url: {}", url);
 		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("site_total_energy, response: {}", res);
+		trace!("site_time_frame_energy, response: {}", res);
 		let res = serde_json::from_str::<response::SiteTimeframeEnergyTop>(&res)?;
 		Ok(res.timeframe_energy)
 	}
@@ -270,12 +270,12 @@ impl<C: HttpClientAdapter> Client<C> {
 
 	/// Return specific inverter data for a given timeframe.
 	pub async fn equipment_data(&self, site_id: u64, serial_number: &str, params: &request::DateTimeRange) -> Result<Vec<response::EquipmentTelemetry>, Error<C::Error>> {
-		trace!("site_storage_data, site_id: {}, params: {:?}", site_id, params);
+		trace!("equipment_data, site_id: {}, params: {:?}", site_id, params);
 		let serial_number = utf8_percent_encode(serial_number, NON_ALPHANUMERIC);
 		let url = self.prepare_url(&format!("/equipment/{}/{}/data.json", site_id, serial_number), params)?;
-		trace!("equipment_list, url: {}", url);
+		trace!("equipment_data, url: {}", url);
 		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("equipment_list, response: {}", res);
+		trace!("equipment_data, response: {}", res);
 		let res = serde_json::from_str::<response::EquipmentDataTop>(&res)?;
 		Ok(res.data.telemetries)
 	}
