@@ -1,3 +1,5 @@
+use std::fmt;
+
 use log::trace;
 use percent_encoding::{NON_ALPHANUMERIC, utf8_percent_encode};
 use serde::Serialize;
@@ -26,7 +28,6 @@ use crate::{
 /// # }
 /// let client = solaredge::Client::<solaredge_reqwest::ReqwestAdapter>::new("API_KEY");
 /// ```
-#[derive(Clone, Debug)]
 pub struct Client<C> {
 	client: C,
 	base_url: Url,
@@ -34,11 +35,11 @@ pub struct Client<C> {
 }
 
 impl<C: HttpClientAdapter> Client<C> {
-	/// Construct a new client using a `HttpClientAdapter::default()` http client implementation
+	/// Construct a new client using an HTTP client implementation that has `HttpClientAdapter::default()`
 	///
 	/// # Example
 	/// ```
-	/// # // Dummy implementation for doctests only, do not use as reference, use crate `solaredge-reqwest` instead
+	/// # // Dummy implementation for doctests only, do not use as reference, use `solaredge-reqwest` crate instead
 	/// # mod solaredge_reqwest {
 	/// #    #[derive(Default)]
 	/// #    pub struct ReqwestAdapter;
@@ -51,15 +52,15 @@ impl<C: HttpClientAdapter> Client<C> {
 	/// let client = solaredge::Client::<solaredge_reqwest::ReqwestAdapter>::new("API_KEY");
 	/// ```
 	#[inline]
-	pub fn new(api_key: impl Into<String>) -> Self {
-		Self::new_with_client(C::default(), api_key.into())
+	pub fn new(api_key: impl Into<String>) -> Self where C: Default {
+		Self::new_with_client(C::default(), api_key)
 	}
 
-	/// Construct a new client using a custom `HttpClientAdapter` implementation
+	/// Construct a new client using a passed `HttpClientAdapter` implementation
 	///
 	/// # Example
 	/// ```
-	/// # // Dummy implementation for doctests only, do not use as reference, use crate `solaredge-reqwest` instead
+	/// # // Dummy implementation for doctests only, do not use as reference, use `solaredge-reqwest` crate instead
 	/// # mod solaredge_reqwest {
 	/// #    #[derive(Default)]
 	/// #    pub struct ReqwestAdapter;
@@ -69,13 +70,14 @@ impl<C: HttpClientAdapter> Client<C> {
 	/// #       async fn get(&self, url: url::Url) -> Result<String, Self::Error> { Ok("".to_string()) }
 	/// #    }
 	/// # }
-	/// let client = solaredge::Client::new_with_client(solaredge_reqwest::ReqwestAdapter::default(), "API_KEY".to_string());
+	/// let client = solaredge::Client::new_with_client(solaredge_reqwest::ReqwestAdapter::default(), "API_KEY");
 	/// ```
-	pub fn new_with_client(client: C, api_key: String) -> Self {
+	#[inline]
+	pub fn new_with_client(client: C, api_key: impl Into<String>) -> Self {
 		Self {
 			client,
 			base_url: Url::parse("https://monitoringapi.solaredge.com").expect("Static URL parsing failed"),
-			api_key,
+			api_key: api_key.into(),
 		}
 	}
 
@@ -282,4 +284,24 @@ impl<C: HttpClientAdapter> Client<C> {
 	// todo account list api
 	// todo meters api
 	// todo sensors api
+}
+
+impl<C: Clone> Clone for Client<C> {
+	fn clone(&self) -> Self {
+		Self {
+			client: self.client.clone(),
+			base_url: self.base_url.clone(),
+			api_key: self.api_key.clone(),
+		}
+	}
+}
+
+impl<C: fmt::Debug> fmt::Debug for Client<C> {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		f.debug_struct("Client")
+			.field("client", &self.client)
+			.field("base_url", &self.base_url)
+			.field("api_key", &"<hidden>")
+			.finish()
+	}
 }

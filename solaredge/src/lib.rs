@@ -1,6 +1,8 @@
 //! # Asynchronous SolarEdge API client for Rust
 //!
-//! Work in progress, only basic API is implemented so far.
+//! Work in progress, only basic API is implemented so far. See `todo` markers in
+//! [client.rs](https://github.com/twistedfall/solaredge/blob/master/solaredge/src/client.rs) for
+//! the specific missing functions.
 //!
 //! Enables access the SolarEdge equipment [API](https://www.solaredge.com/sites/default/files/se_monitoring_api.pdf)
 //! (solar panels, inverters, meters) with the nice typed Rust interface.
@@ -12,7 +14,7 @@
 //!
 //! Sample usage with [solaredge-reqwest](https://crates.io/crates/solaredge-reqwest):
 //! ```
-//! # // Dummy implementation for doctests only, do not use as reference, use crate `solaredge-reqwest` instead
+//! # // Dummy implementation for doctests only, do not use as reference, use `solaredge-reqwest` crate instead
 //! # mod solaredge_reqwest {
 //! #    #[derive(Default)]
 //! #    pub struct ReqwestAdapter;
