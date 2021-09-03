@@ -93,7 +93,7 @@ pub enum TimeUnit {
 	Year,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Deserialize)]
 pub enum MeterType {
 	Production,
 	Consumption,
@@ -173,3 +173,10 @@ pub enum OperationMode {
 	OffGridWithPvOrBattery = 1,
 	OffGridWithGenerator = 2,
 }
+
+#[derive(Copy, Clone, Debug, Serialize)]
+pub enum SystemUnits {
+	Metrics,
+	Imperial,
+}
+

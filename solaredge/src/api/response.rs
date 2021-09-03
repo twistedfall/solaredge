@@ -5,7 +5,7 @@ use super::{
 	DateSerde,
 	DateTimeSerde,
 	DateTimeSerdeOpt,
-	enums::{InverterMode, OperationMode, SiteStatus, TimeUnit},
+	enums::{InverterMode, MeterType, OperationMode, SiteStatus, TimeUnit},
 };
 
 #[derive(Debug, Deserialize)]
@@ -294,6 +294,28 @@ pub struct SiteStorageDataTop {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct GasEmissionsSaved {
+	pub units: String,
+	pub co2: f64,
+	pub so2: f64,
+	pub nox: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SiteEnvBenefits {
+	pub gas_emission_saved: GasEmissionsSaved,
+	pub trees_planted: f64,
+	pub light_bulbs: f64,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SiteEnvBenefitsTop {
+	pub env_benefits: SiteEnvBenefits,
+}
+
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Meter {
 	pub name: String,
@@ -366,6 +388,31 @@ pub struct SiteInventory {
 pub struct SiteInventoryTop {
 	#[serde(rename = "Inventory")]
 	pub inventory: SiteInventory,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SiteMeterValueExt {
+	pub meter_serial_number: String,
+	#[serde(rename = "connectedSolaredgeDeviceSN")]
+	pub connected_solaredge_device_sn: String,
+	pub model: String,
+	pub meter_type: MeterType,
+	pub values: Vec<SiteDateValue>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SiteMeters {
+	pub time_unit: TimeUnit,
+	pub unit: String,
+	pub meters: Vec<SiteMeterValueExt>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SiteMetersTop {
+	pub meter_energy_details: SiteMeters,
 }
 
 #[derive(Debug, Deserialize)]

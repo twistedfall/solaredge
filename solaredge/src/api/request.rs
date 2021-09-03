@@ -4,7 +4,7 @@ use serde::Serialize;
 use super::{
 	DateSerde,
 	DateTimeSerde,
-	enums::{MeterType, SiteSortBy, SiteStatus, SortOrder, TimeUnit},
+	enums::{MeterType, SiteSortBy, SiteStatus, SortOrder, SystemUnits, TimeUnit},
 	serialize_comma_slice_opt,
 };
 
@@ -61,7 +61,7 @@ pub struct SitePowerDetails<'r> {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct SiteEnergyDetails<'r> {
+pub struct MetersDateTimeRange<'r> {
 	#[serde(with = "DateTimeSerde")]
 	pub start_time: NaiveDateTime,
 	#[serde(with = "DateTimeSerde")]
@@ -80,4 +80,10 @@ pub struct SiteStorageData<'r> {
 	pub end_time: NaiveDateTime,
 	#[serde(serialize_with = "serialize_comma_slice_opt")]
 	pub serials: Option<&'r [String]>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SiteEnvBenefits {
+	pub system_units: Option<SystemUnits>,
 }

@@ -210,7 +210,7 @@ impl<C: HttpClientAdapter> Client<C> {
 	}
 
 	/// Detailed site energy measurements from meters such as consumption, export (feed-in), import (purchase), etc.
-	pub async fn site_energy_details(&self, site_id: u64, params: &request::SiteEnergyDetails<'_>) -> Result<response::SiteMetersDetails, Error<C::Error>> {
+	pub async fn site_energy_details(&self, site_id: u64, params: &request::MetersDateTimeRange<'_>) -> Result<response::SiteMetersDetails, Error<C::Error>> {
 		trace!("site_energy_details, site_id: {}, params: {:?}", site_id, params);
 		let url = self.prepare_url(&format!("/site/{}/energyDetails.json", site_id), params)?;
 		trace!("site_energy_details, url: {}", url);
@@ -243,7 +243,18 @@ impl<C: HttpClientAdapter> Client<C> {
 	}
 
 	// todo site image
-	// todo site environmental benefits
+
+	/// Returns all environmental benefits based on site energy production: CO2 emissions saved, equivalent trees planted, and light bulbs powered for a day.
+	pub async fn site_env_benefits(&self, site_id: u64, params: &request::SiteEnvBenefits) -> Result<response::SiteEnvBenefits, Error<C::Error>> {
+		trace!("site_env_benefits, site_id: {}, params: {:?}", site_id, params);
+		let url = self.prepare_url(&format!("/site/{}/envBenefits.json", site_id), params)?;
+		trace!("site_env_benefits, url: {}", url);
+		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
+		trace!("site_env_benefits, response: {}", res);
+		let res = serde_json::from_str::<response::SiteEnvBenefitsTop>(&res)?;
+		Ok(res.env_benefits)
+	}
+
 	// todo site installer logo image
 
 	/// Return the inventory of SolarEdge equipment in the site, including inverters/SMIs, batteries, meters, gateways and sensors.
@@ -255,6 +266,17 @@ impl<C: HttpClientAdapter> Client<C> {
 		trace!("site_inventory, response: {}", res);
 		let res = serde_json::from_str::<response::SiteInventoryTop>(&res)?;
 		Ok(res.inventory)
+	}
+
+	/// Returns for each meter on site its lifetime energy reading, metadata and the device to which it’s connected to.
+	pub async fn site_meters(&self, site_id: u64, params: &request::MetersDateTimeRange<'_>) -> Result<response::SiteMeters, Error<C::Error>> {
+		trace!("site_meters, site_id: {}, params: {:?}", site_id, params);
+		let url = self.prepare_url(&format!("/site/{}/meters.json", site_id), params)?;
+		trace!("site_meters, url: {}", url);
+		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
+		trace!("site_meters, response: {}", res);
+		let res = serde_json::from_str::<response::SiteMetersTop>(&res)?;
+		Ok(res.meter_energy_details)
 	}
 
 	/// Return a list of inverters/SMIs in the specific site.
@@ -282,7 +304,6 @@ impl<C: HttpClientAdapter> Client<C> {
 
 	// todo equipment changelog
 	// todo account list api
-	// todo meters api
 	// todo sensors api
 }
 
