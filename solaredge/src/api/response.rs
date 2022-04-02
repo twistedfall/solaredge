@@ -69,7 +69,7 @@ pub struct Site {
 	pub peak_power: f64,
 	#[serde(with = "DateTimeSerde")]
 	pub last_update_time: NaiveDateTime,
-	pub currency: String,
+	pub currency: Option<String>,
 	#[serde(with = "DateTimeSerde")]
 	pub installation_date: NaiveDateTime,
 	#[serde(with = "DateTimeSerdeOpt")]
