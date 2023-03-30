@@ -8,24 +8,14 @@
 //! (solar panels, inverters, meters) with the nice typed Rust interface.
 //!
 //! The library requires an HTTP client, but is client-agnostic. You can use any client that implements
-//! [`HttpClientAdapter`](https://docs.rs/solaredge/*/solaredge/trait.HttpClientAdapter.html) interface.
-//! Check [solaredge-reqwest](https://crates.io/crates/solaredge-reqwest) for an implementation based
+//! [`HttpClientAdapter`](https://docs.rs/http-adapter/*/http_adapter/trait.HttpClientAdapter.html) trait.
+//! Check [http-adapter-reqwest](https://crates.io/crates/http-adapter-reqwest) for an implementation based
 //! on [reqwest](https://crates.io/crates/reqwest).
 //!
-//! Sample usage with [solaredge-reqwest](https://crates.io/crates/solaredge-reqwest):
+//! Sample usage with [http-adapter-reqwest](https://crates.io/crates/http-adapter-reqwest):
 //! ```
-//! # // Dummy implementation for doctests only, do not use as reference, use `solaredge-reqwest` crate instead
-//! # mod solaredge_reqwest {
-//! #    #[derive(Default)]
-//! #    pub struct ReqwestAdapter;
-//! #    #[async_trait::async_trait]
-//! #    impl solaredge::HttpClientAdapter for ReqwestAdapter {
-//! #       type Error = String;
-//! #       async fn get(&self, url: url::Url) -> Result<String, Self::Error> { Ok("".to_string()) }
-//! #    }
-//! # }
 //! use solaredge::{Client, SitesList, SortOrder, SiteStatus};
-//! use solaredge_reqwest::ReqwestAdapter;
+//! use http_adapter_reqwest::ReqwestAdapter;
 //!
 //! async fn run() -> Result<(), Box<dyn std::error::Error>> {
 //!    let client = Client::<ReqwestAdapter>::new("API_KEY");
@@ -44,9 +34,9 @@ pub use api::request::*;
 pub use api::response;
 pub use client::Client;
 pub use error::Error;
-pub use http::HttpClientAdapter;
 
 pub mod api;
 pub mod client;
 mod error;
-mod http;
+#[cfg(test)]
+mod tests;

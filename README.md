@@ -23,13 +23,13 @@ Enables access the SolarEdge equipment [API](https://www.solaredge.com/sites/def
 
 The library requires an HTTP client, but is client-agnostic. You can use any client that implements
 [`HttpClientAdapter`](https://docs.rs/solaredge/*/solaredge/trait.HttpClientAdapter.html) interface.
-Check [solaredge-reqwest](https://crates.io/crates/solaredge-reqwest) for an implementation based
+Check [http-adapter-reqwest](https://crates.io/crates/http-adapter-reqwest) for an implementation based
 on [reqwest](https://crates.io/crates/reqwest).
 
-Sample usage with [solaredge-reqwest](https://crates.io/crates/solaredge-reqwest):
+Sample usage with [http-adapter-reqwest](https://crates.io/crates/http-adapter-reqwest):
 ```rust
 use solaredge::{Client, SitesList, SortOrder, SiteStatus};
-use solaredge_reqwest::ReqwestAdapter;
+use http_adapter_reqwest::ReqwestAdapter;
 
 async fn run() -> Result<(), Box<dyn std::error::Error>> {
    let client = Client::<ReqwestAdapter>::new("API_KEY");

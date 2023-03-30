@@ -1,2 +1,1 @@
-pre-release-hook = "../tools/pre-release.sh"
-pre-release-commit-message = "v{{version}}"
+pre-release-hook = "tools/pre-release.sh"

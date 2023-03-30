@@ -1,29 +1,31 @@
-use std::fmt::{self, Write};
+use std::fmt;
+use std::fmt::Write;
 
+use http_adapter::{HttpClientAdapter, Request};
 use log::trace;
 use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
 use serde::Serialize;
 use url::Url;
 
 use crate::api::request;
-use crate::{response, Error, HttpClientAdapter};
+use crate::{response, Error};
 
 /// Client for accessing SolarEdge API
 ///
 /// To be able to use it you'll need to request the API key from the Admin panel of your SolarEdge
 /// installation. Then create it like this:
 /// ```
-/// # // Dummy implementation for doctests only, do not use as reference, use crate `solaredge-reqwest` instead
-/// # mod solaredge_reqwest {
+/// # // Dummy implementation for doctests only, do not use as reference, use crate `http-adapter-reqwest` instead
+/// # mod http_adapter_reqwest {
 /// #    #[derive(Default)]
 /// #    pub struct ReqwestAdapter;
-/// #    #[async_trait::async_trait]
-/// #    impl solaredge::HttpClientAdapter for ReqwestAdapter {
+/// #    #[async_trait::async_trait(?Send)]
+/// #    impl http_adapter::HttpClientAdapter for ReqwestAdapter {
 /// #       type Error = String;
-/// #       async fn get(&self, url: url::Url) -> Result<String, Self::Error> { Ok("".to_string()) }
+/// #       async fn execute(&self, request: http_adapter::Request<Vec<u8>>) -> Result<http_adapter::Response<Vec<u8>>, Self::Error> { Ok(http_adapter::Response::new(vec![])) }
 /// #    }
 /// # }
-/// let client = solaredge::Client::<solaredge_reqwest::ReqwestAdapter>::new("API_KEY");
+/// let client = solaredge::Client::<http_adapter_reqwest::ReqwestAdapter>::new("API_KEY");
 /// ```
 pub struct Client<C> {
 	client: C,
@@ -36,17 +38,17 @@ impl<C: HttpClientAdapter> Client<C> {
 	///
 	/// # Example
 	/// ```
-	/// # // Dummy implementation for doctests only, do not use as reference, use `solaredge-reqwest` crate instead
-	/// # mod solaredge_reqwest {
+	/// # // Dummy implementation for doctests only, do not use as reference, use `http-adapter-reqwest` crate instead
+	/// # mod http_adapter_reqwest {
 	/// #    #[derive(Default)]
 	/// #    pub struct ReqwestAdapter;
-	/// #    #[async_trait::async_trait]
-	/// #    impl solaredge::HttpClientAdapter for ReqwestAdapter {
+	/// #    #[async_trait::async_trait(?Send)]
+	/// #    impl http_adapter::HttpClientAdapter for ReqwestAdapter {
 	/// #       type Error = String;
-	/// #       async fn get(&self, url: url::Url) -> Result<String, Self::Error> { Ok("".to_string()) }
+	/// #       async fn execute(&self, request: http_adapter::Request<Vec<u8>>) -> Result<http_adapter::Response<Vec<u8>>, Self::Error> { Ok(http_adapter::Response::new(vec![])) }
 	/// #    }
 	/// # }
-	/// let client = solaredge::Client::<solaredge_reqwest::ReqwestAdapter>::new("API_KEY");
+	/// let client = solaredge::Client::<http_adapter_reqwest::ReqwestAdapter>::new("API_KEY");
 	/// ```
 	#[inline]
 	pub fn new(api_key: impl Into<String>) -> Self
@@ -60,17 +62,17 @@ impl<C: HttpClientAdapter> Client<C> {
 	///
 	/// # Example
 	/// ```
-	/// # // Dummy implementation for doctests only, do not use as reference, use `solaredge-reqwest` crate instead
-	/// # mod solaredge_reqwest {
+	/// # // Dummy implementation for doctests only, do not use as reference, use `http-adapter-reqwest` crate instead
+	/// # mod http_adapter_reqwest {
 	/// #    #[derive(Default)]
 	/// #    pub struct ReqwestAdapter;
-	/// #    #[async_trait::async_trait]
-	/// #    impl solaredge::HttpClientAdapter for ReqwestAdapter {
+	/// #    #[async_trait::async_trait(?Send)]
+	/// #    impl http_adapter::HttpClientAdapter for ReqwestAdapter {
 	/// #       type Error = String;
-	/// #       async fn get(&self, url: url::Url) -> Result<String, Self::Error> { Ok("".to_string()) }
+	/// #       async fn execute(&self, request: http_adapter::Request<Vec<u8>>) -> Result<http_adapter::Response<Vec<u8>>, Self::Error> { Ok(http_adapter::Response::new(vec![])) }
 	/// #    }
 	/// # }
-	/// let client = solaredge::Client::new_with_client(solaredge_reqwest::ReqwestAdapter::default(), "API_KEY");
+	/// let client = solaredge::Client::new_with_client(http_adapter_reqwest::ReqwestAdapter::default(), "API_KEY");
 	/// ```
 	#[inline]
 	pub fn new_with_client(client: C, api_key: impl Into<String>) -> Self {
@@ -91,6 +93,10 @@ impl<C: HttpClientAdapter> Client<C> {
 		Ok(out)
 	}
 
+	fn request_get(url: Url) -> Request<Vec<u8>> {
+		Request::get(url.to_string()).body(vec![]).unwrap()
+	}
+
 	fn join_site_ids(ids: &[u64]) -> String {
 		let mut out = String::with_capacity(ids.len() * 10);
 		let mut first = true;
@@ -109,9 +115,13 @@ impl<C: HttpClientAdapter> Client<C> {
 	pub async fn version_current(&self) -> Result<String, Error<C::Error>> {
 		let url = self.prepare_url("/version/current.json", ())?;
 		trace!("version_current, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("version_current, response: {}", res);
-		let res = serde_json::from_str::<response::VersionCurrentTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("version_current, response: {:?}", res);
+		let res = serde_json::from_slice::<response::VersionCurrentTop>(res.body())?;
 		Ok(res.version.release)
 	}
 
@@ -119,9 +129,13 @@ impl<C: HttpClientAdapter> Client<C> {
 	pub async fn version_supported(&self) -> Result<Vec<response::VersionSpec>, Error<C::Error>> {
 		let url = self.prepare_url("/version/supported.json", ())?;
 		trace!("version_supported, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("version_supported, response: {}", res);
-		let res = serde_json::from_str::<response::VersionSupportedTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("version_supported, response: {:?}", res);
+		let res = serde_json::from_slice::<response::VersionSupportedTop>(res.body())?;
 		Ok(res.supported)
 	}
 
@@ -130,9 +144,13 @@ impl<C: HttpClientAdapter> Client<C> {
 		trace!("sites_list, params: {:?}", params);
 		let url = self.prepare_url("/sites/list.json", params)?;
 		trace!("sites_list, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("sites_list, response: {}", res);
-		let res = serde_json::from_str::<response::SitesListTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("sites_list, response: {:?}", res);
+		let res = serde_json::from_slice::<response::SitesListTop>(res.body())?;
 		Ok(res.sites.site)
 	}
 
@@ -141,9 +159,13 @@ impl<C: HttpClientAdapter> Client<C> {
 		trace!("site_details, site_id: {}", site_id);
 		let url = self.prepare_url(&format!("/site/{}/details.json", site_id), ())?;
 		trace!("site_details, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("site_details, response: {}", res);
-		let res = serde_json::from_str::<response::SiteDetailsTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("site_details, response: {:?}", res);
+		let res = serde_json::from_slice::<response::SiteDetailsTop>(res.body())?;
 		Ok(res.details)
 	}
 
@@ -152,9 +174,13 @@ impl<C: HttpClientAdapter> Client<C> {
 		trace!("site_data_period, site_id: {}", site_id);
 		let url = self.prepare_url(&format!("/site/{}/dataPeriod.json", site_id), ())?;
 		trace!("site_data_period, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("site_data_period, response: {}", res);
-		let res = serde_json::from_str::<response::SiteDataPeriodTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("site_data_period, response: {:?}", res);
+		let res = serde_json::from_slice::<response::SiteDataPeriodTop>(res.body())?;
 		Ok(res.data_period)
 	}
 
@@ -164,9 +190,13 @@ impl<C: HttpClientAdapter> Client<C> {
 		let site_ids_str = Self::join_site_ids(site_ids);
 		let url = self.prepare_url(&format!("/sites/{}/dataPeriod.json", site_ids_str), ())?;
 		trace!("site_data_period_bulk, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("site_data_period_bulk, response: {}", res);
-		let res = serde_json::from_str::<response::SiteDataPeriodBulkTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("site_data_period_bulk, response: {:?}", res);
+		let res = serde_json::from_slice::<response::SiteDataPeriodBulkTop>(res.body())?;
 		Ok(res.date_period_list.site_energy_list)
 	}
 
@@ -175,9 +205,13 @@ impl<C: HttpClientAdapter> Client<C> {
 		trace!("site_energy, site_id: {}, params: {:?}", site_id, params);
 		let url = self.prepare_url(&format!("/site/{}/energy.json", site_id), params)?;
 		trace!("site_energy, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("site_energy, response: {}", res);
-		let res = serde_json::from_str::<response::SiteEnergyTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("site_energy, response: {:?}", res);
+		let res = serde_json::from_slice::<response::SiteEnergyTop>(res.body())?;
 		Ok(res.energy)
 	}
 
@@ -191,9 +225,13 @@ impl<C: HttpClientAdapter> Client<C> {
 		let site_ids_str = Self::join_site_ids(site_ids);
 		let url = self.prepare_url(&format!("/sites/{}/energy.json", site_ids_str), params)?;
 		trace!("site_energy_bulk, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("site_energy_bulk, response: {}", res);
-		let res = serde_json::from_str::<response::SiteEnergyBulkTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("site_energy_bulk, response: {:?}", res);
+		let res = serde_json::from_slice::<response::SiteEnergyBulkTop>(res.body())?;
 		Ok(res.sites_energy)
 	}
 
@@ -206,9 +244,13 @@ impl<C: HttpClientAdapter> Client<C> {
 		trace!("site_time_frame_energy, site_id: {}, params: {:?}", site_id, params);
 		let url = self.prepare_url(&format!("/site/{}/timeFrameEnergy.json", site_id), params)?;
 		trace!("site_time_frame_energy, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("site_time_frame_energy, response: {}", res);
-		let res = serde_json::from_str::<response::SiteTimeframeEnergyTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("site_time_frame_energy, response: {:?}", res);
+		let res = serde_json::from_slice::<response::SiteTimeframeEnergyTop>(res.body())?;
 		Ok(res.timeframe_energy)
 	}
 
@@ -222,9 +264,13 @@ impl<C: HttpClientAdapter> Client<C> {
 		let site_ids_str = Self::join_site_ids(site_ids);
 		let url = self.prepare_url(&format!("/sites/{}/timeFrameEnergy.json", site_ids_str), params)?;
 		trace!("site_time_frame_energy_bulk, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("site_time_frame_energy_bulk, response: {}", res);
-		let res = serde_json::from_str::<response::SiteTimeframeEnergyBulkTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("site_time_frame_energy_bulk, response: {:?}", res);
+		let res = serde_json::from_slice::<response::SiteTimeframeEnergyBulkTop>(res.body())?;
 		Ok(res.timeframe_energy_list.timeframe_energy_list)
 	}
 
@@ -233,9 +279,13 @@ impl<C: HttpClientAdapter> Client<C> {
 		trace!("site_power, site_id: {}, params: {:?}", site_id, params);
 		let url = self.prepare_url(&format!("/site/{}/power.json", site_id), params)?;
 		trace!("site_power, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("site_power, response: {}", res);
-		let res = serde_json::from_str::<response::SitePowerTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("site_power, response: {:?}", res);
+		let res = serde_json::from_slice::<response::SitePowerTop>(res.body())?;
 		Ok(res.power)
 	}
 
@@ -249,9 +299,13 @@ impl<C: HttpClientAdapter> Client<C> {
 		let site_ids_str = Self::join_site_ids(site_ids);
 		let url = self.prepare_url(&format!("/sites/{}/power.json", site_ids_str), params)?;
 		trace!("site_power_bulk, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("site_power_bulk, response: {}", res);
-		let res = serde_json::from_str::<response::SitePowerBulkTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("site_power_bulk, response: {:?}", res);
+		let res = serde_json::from_slice::<response::SitePowerBulkTop>(res.body())?;
 		Ok(res.power_date_values_list)
 	}
 
@@ -260,9 +314,13 @@ impl<C: HttpClientAdapter> Client<C> {
 		trace!("site_overview, site_id: {}", site_id);
 		let url = self.prepare_url(&format!("/site/{}/overview.json", site_id), ())?;
 		trace!("site_overview, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("site_overview, response: {}", res);
-		let res = serde_json::from_str::<response::SiteOverviewTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("site_overview, response: {:?}", res);
+		let res = serde_json::from_slice::<response::SiteOverviewTop>(res.body())?;
 		Ok(res.overview)
 	}
 
@@ -277,9 +335,13 @@ impl<C: HttpClientAdapter> Client<C> {
 		trace!("site_power_details, site_id: {}, params: {:?}", site_id, params);
 		let url = self.prepare_url(&format!("/site/{}/powerDetails.json", site_id), params)?;
 		trace!("site_power_details, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("site_power_details, response: {}", res);
-		let res = serde_json::from_str::<response::SitePowerDetailsTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("site_power_details, response: {:?}", res);
+		let res = serde_json::from_slice::<response::SitePowerDetailsTop>(res.body())?;
 		Ok(res.power_details)
 	}
 
@@ -292,9 +354,13 @@ impl<C: HttpClientAdapter> Client<C> {
 		trace!("site_energy_details, site_id: {}, params: {:?}", site_id, params);
 		let url = self.prepare_url(&format!("/site/{}/energyDetails.json", site_id), params)?;
 		trace!("site_energy_details, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("site_energy_details, response: {}", res);
-		let res = serde_json::from_str::<response::SiteEnergyDetailsTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("site_energy_details, response: {:?}", res);
+		let res = serde_json::from_slice::<response::SiteEnergyDetailsTop>(res.body())?;
 		Ok(res.energy_details)
 	}
 
@@ -303,9 +369,13 @@ impl<C: HttpClientAdapter> Client<C> {
 		trace!("site_current_power_flow, site_id: {}", site_id);
 		let url = self.prepare_url(&format!("/site/{}/currentPowerFlow.json", site_id), ())?;
 		trace!("site_current_power_flow, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("site_current_power_flow, response: {}", res);
-		let res = serde_json::from_str::<response::SiteCurrentPowerFlowTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("site_current_power_flow, response: {:?}", res);
+		let res = serde_json::from_slice::<response::SiteCurrentPowerFlowTop>(res.body())?;
 		Ok(res.site_current_power_flow)
 	}
 
@@ -318,9 +388,13 @@ impl<C: HttpClientAdapter> Client<C> {
 		trace!("site_storage_data, site_id: {}, params: {:?}", site_id, params);
 		let url = self.prepare_url(&format!("/site/{}/storageData.json", site_id), params)?;
 		trace!("site_storage_data, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("site_storage_data, response: {}", res);
-		let res = serde_json::from_str::<response::SiteStorageDataTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("site_storage_data, response: {:?}", res);
+		let res = serde_json::from_slice::<response::SiteStorageDataTop>(res.body())?;
 		Ok(res.storage_data)
 	}
 
@@ -335,9 +409,13 @@ impl<C: HttpClientAdapter> Client<C> {
 		trace!("site_env_benefits, site_id: {}, params: {:?}", site_id, params);
 		let url = self.prepare_url(&format!("/site/{}/envBenefits.json", site_id), params)?;
 		trace!("site_env_benefits, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("site_env_benefits, response: {}", res);
-		let res = serde_json::from_str::<response::SiteEnvBenefitsTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("site_env_benefits, response: {:?}", res);
+		let res = serde_json::from_slice::<response::SiteEnvBenefitsTop>(res.body())?;
 		Ok(res.env_benefits)
 	}
 
@@ -348,9 +426,13 @@ impl<C: HttpClientAdapter> Client<C> {
 		trace!("site_inventory, site_id: {}", site_id);
 		let url = self.prepare_url(&format!("/site/{}/inventory.json", site_id), ())?;
 		trace!("site_inventory, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("site_inventory, response: {}", res);
-		let res = serde_json::from_str::<response::SiteInventoryTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("site_inventory, response: {:?}", res);
+		let res = serde_json::from_slice::<response::SiteInventoryTop>(res.body())?;
 		Ok(res.inventory)
 	}
 
@@ -363,9 +445,13 @@ impl<C: HttpClientAdapter> Client<C> {
 		trace!("site_meters, site_id: {}, params: {:?}", site_id, params);
 		let url = self.prepare_url(&format!("/site/{}/meters.json", site_id), params)?;
 		trace!("site_meters, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("site_meters, response: {}", res);
-		let res = serde_json::from_str::<response::SiteMetersTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("site_meters, response: {:?}", res);
+		let res = serde_json::from_slice::<response::SiteMetersTop>(res.body())?;
 		Ok(res.meter_energy_details)
 	}
 
@@ -374,9 +460,13 @@ impl<C: HttpClientAdapter> Client<C> {
 		trace!("equipment_list, site_id: {}", site_id);
 		let url = self.prepare_url(&format!("/equipment/{}/list.json", site_id), ())?;
 		trace!("equipment_list, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("equipment_list, response: {}", res);
-		let res = serde_json::from_str::<response::EquipmentListTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("equipment_list, response: {:?}", res);
+		let res = serde_json::from_slice::<response::EquipmentListTop>(res.body())?;
 		Ok(res.reporters.list)
 	}
 
@@ -391,9 +481,13 @@ impl<C: HttpClientAdapter> Client<C> {
 		let serial_number = utf8_percent_encode(serial_number, NON_ALPHANUMERIC);
 		let url = self.prepare_url(&format!("/equipment/{}/{}/data.json", site_id, serial_number), params)?;
 		trace!("equipment_data, url: {}", url);
-		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
-		trace!("equipment_data, response: {}", res);
-		let res = serde_json::from_str::<response::EquipmentDataTop>(&res)?;
+		let res = self
+			.client
+			.execute(Self::request_get(url))
+			.await
+			.map_err(Error::HttpRequest)?;
+		trace!("equipment_data, response: {:?}", res);
+		let res = serde_json::from_slice::<response::EquipmentDataTop>(res.body())?;
 		Ok(res.data.telemetries)
 	}
 
