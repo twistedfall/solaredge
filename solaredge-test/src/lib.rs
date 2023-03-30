@@ -21,30 +21,44 @@ mod tests {
 		p.search_text = Some("bbb");
 		let sites = block_on(c.sites_list(&p)).unwrap();
 		dbg!(&sites);
+		let mut site_ids = sites.iter()
+			.map(|s| s.id)
+			.collect::<Vec<_>>();
+		if site_ids.len() == 1 {
+			site_ids.push(site_ids.first().copied().unwrap_or_default());
+		}
+		let data_bulk = block_on(c.site_data_period_bulk(&site_ids)).unwrap();
+		dbg!(&data_bulk);
+		let site_energy_param = SiteEnergy {
+			start_date: NaiveDate::from_ymd(2021, 8, 10),
+			end_date: NaiveDate::from_ymd(2021, 8, 12),
+			time_unit: Some(TimeUnit::QuarterOfAnHour),
+		};
+		let energy_bulk = block_on(c.site_energy_bulk(&site_ids, &site_energy_param)).unwrap();
+		dbg!(&energy_bulk);
+		let site_total_energy_param = SiteTotalEnergy {
+			start_date: NaiveDate::from_ymd(2021, 8, 10),
+			end_date: NaiveDate::from_ymd(2021, 8, 12),
+		};
+		let energy_bulk = block_on(c.site_time_frame_energy_bulk(&site_ids, &site_total_energy_param)).unwrap();
+		dbg!(&energy_bulk);
+		let date_time_range_param = DateTimeRange {
+			start_time: NaiveDate::from_ymd(2021, 8, 10).and_time(NaiveTime::from_hms(0, 0, 0)),
+			end_time: NaiveDate::from_ymd(2021, 8, 12).and_time(NaiveTime::from_hms(0, 0, 0)),
+		};
+		let power_bulk = block_on(c.site_power_bulk(&site_ids, &date_time_range_param)).unwrap();
+		dbg!(&power_bulk);
 		for site in sites {
 			let site = block_on(c.site_details(site.id)).unwrap();
 			dbg!(&site);
 			let data = block_on(c.site_data_period(site.id)).unwrap();
 			dbg!(&data);
-			let p = SiteEnergy {
-				start_date: NaiveDate::from_ymd(2021, 8, 10),
-				end_date: NaiveDate::from_ymd(2021, 8, 12),
-				time_unit: Some(TimeUnit::QuarterOfAnHour),
-			};
-			let energy = block_on(c.site_energy(site.id, &p)).unwrap();
+			let energy = block_on(c.site_energy(site.id, &site_energy_param)).unwrap();
 			dbg!(&energy);
-			let p = SiteTotalEnergy {
-				start_date: NaiveDate::from_ymd(2021, 8, 10),
-				end_date: NaiveDate::from_ymd(2021, 8, 12),
-			};
-			let energy = block_on(c.site_time_frame_energy(site.id, &p)).unwrap();
+			let energy = block_on(c.site_time_frame_energy(site.id, &site_total_energy_param)).unwrap();
 			dbg!(&energy);
-			let p = DateTimeRange {
-				start_time: NaiveDate::from_ymd(2021, 8, 10).and_time(NaiveTime::from_hms(0, 0, 0)),
-				end_time: NaiveDate::from_ymd(2021, 8, 12).and_time(NaiveTime::from_hms(0, 0, 0)),
-			};
-			let energy = block_on(c.site_power(site.id, &p)).unwrap();
-			dbg!(&energy);
+			let power = block_on(c.site_power(site.id, &date_time_range_param)).unwrap();
+			dbg!(&power);
 			let overview = block_on(c.site_overview(site.id)).unwrap();
 			dbg!(&overview);
 			let p = SitePowerDetails {

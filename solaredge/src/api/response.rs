@@ -9,6 +9,12 @@ use super::{
 };
 
 #[derive(Debug, Deserialize)]
+pub struct List<T> {
+	pub count: usize,
+	pub list: Vec<T>,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct VersionSpec {
 	pub release: String,
 }
@@ -118,6 +124,26 @@ pub struct SiteDataPeriodTop {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct DataPeriodBulk {
+	pub site_id: u64,
+	pub data_period: DataPeriod,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DataPeriodBulkList {
+	pub count: usize,
+	pub site_energy_list: Vec<DataPeriodBulk>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SiteDataPeriodBulkTop {
+	pub date_period_list: DataPeriodBulkList,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SiteDateValue {
 	#[serde(with = "DateTimeSerde")]
 	pub date: NaiveDateTime,
@@ -136,6 +162,35 @@ pub struct SiteEnergy {
 #[serde(rename_all = "camelCase")]
 pub struct SiteEnergyTop {
 	pub energy: SiteEnergy,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SiteEnergyValues {
+	pub measured_by: String,
+	pub values: Vec<SiteDateValue>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SiteEnergyBulk {
+	pub site_id: u64,
+	pub energy_values: SiteEnergyValues,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SiteEnergyBulkList {
+	pub time_unit: TimeUnit,
+	pub unit: String,
+	pub count: usize,
+	pub site_energy_list: Vec<SiteEnergyBulk>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SiteEnergyBulkTop {
+	pub sites_energy: SiteEnergyBulkList,
 }
 
 #[derive(Debug, Deserialize)]
@@ -166,6 +221,29 @@ pub struct SiteTimeframeEnergyTop {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct SiteTimeframeEnergyBulk {
+	pub site_id: u64,
+	#[serde(rename = "timeFrameEnergy")]
+	pub timeframe_energy: SiteTimeframeEnergy,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SiteTimeframeEnergyList {
+	pub count: usize,
+	#[serde(rename = "timeFrameEnergyList")]
+	pub timeframe_energy_list: Vec<SiteTimeframeEnergyBulk>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SiteTimeframeEnergyBulkTop {
+	#[serde(rename = "timeFrameEnergyList")]
+	pub timeframe_energy_list: SiteTimeframeEnergyList,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SitePower {
 	pub time_unit: TimeUnit,
 	pub unit: String,
@@ -175,6 +253,28 @@ pub struct SitePower {
 #[derive(Debug, Deserialize)]
 pub struct SitePowerTop {
 	pub power: SitePower,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SiteEnergyList {
+	pub site_id: u64,
+	pub power_data_value_series: SiteEnergyValues,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SitePowerValueList {
+	pub time_unit: TimeUnit,
+	pub unit: String,
+	pub count: usize,
+	pub site_energy_list: Vec<SiteEnergyList>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SitePowerBulkTop {
+	pub power_date_values_list: SitePowerValueList,
 }
 
 #[derive(Debug, Deserialize)]
@@ -427,14 +527,8 @@ pub struct Equipment {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct EquipmentReporters {
-	pub count: usize,
-	pub list: Vec<Equipment>,
-}
-
-#[derive(Debug, Deserialize)]
 pub struct EquipmentListTop {
-	pub reporters: EquipmentReporters,
+	pub reporters: List<Equipment>,
 }
 
 #[derive(Debug, Deserialize)]

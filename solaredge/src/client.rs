@@ -1,4 +1,4 @@
-use std::fmt;
+use std::fmt::{self, Write};
 
 use log::trace;
 use percent_encoding::{NON_ALPHANUMERIC, utf8_percent_encode};
@@ -91,6 +91,20 @@ impl<C: HttpClientAdapter> Client<C> {
 		Ok(out)
 	}
 
+	fn join_site_ids(ids: &[u64]) -> String {
+		let mut out = String::with_capacity(ids.len() * 10);
+		let mut first = true;
+		for id in ids {
+			if first {
+				write!(out, "{}", id).expect("Impossible");
+				first = false;
+			} else {
+				write!(out, ",{}", id).expect("Impossible");
+			}
+		}
+		out
+	}
+
 	/// Return the most updated version number in <major.minor.revision> format.
 	pub async fn version_current(&self) -> Result<String, Error<C::Error>> {
 		let url = self.prepare_url("/version/current.json", ())?;
@@ -144,7 +158,17 @@ impl<C: HttpClientAdapter> Client<C> {
 		Ok(res.data_period)
 	}
 
-	// todo site data bulk
+	/// Return the energy production start and end dates of the multiple sites.
+	pub async fn site_data_period_bulk(&self, site_ids: &[u64]) -> Result<Vec<response::DataPeriodBulk>, Error<C::Error>> {
+		trace!("site_data_period_bulk, site_ids: {:?}", site_ids);
+		let site_ids_str = Self::join_site_ids(site_ids);
+		let url = self.prepare_url(&format!("/sites/{}/dataPeriod.json", site_ids_str), ())?;
+		trace!("site_data_period_bulk, url: {}", url);
+		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
+		trace!("site_data_period_bulk, response: {}", res);
+		let res = serde_json::from_str::<response::SiteDataPeriodBulkTop>(&res)?;
+		Ok(res.date_period_list.site_energy_list)
+	}
 
 	/// Return the energy production start and end dates of the site.
 	pub async fn site_energy(&self, site_id: u64, params: &request::SiteEnergy) -> Result<response::SiteEnergy, Error<C::Error>> {
@@ -157,7 +181,17 @@ impl<C: HttpClientAdapter> Client<C> {
 		Ok(res.energy)
 	}
 
-	// todo site energy bulk
+	/// Return the energy production start and end dates of the multiple sites.
+	pub async fn site_energy_bulk(&self, site_ids: &[u64], params: &request::SiteEnergy) -> Result<response::SiteEnergyBulkList, Error<C::Error>> {
+		trace!("site_energy_bulk, site_ids: {:?}, params: {:?}", site_ids, params);
+		let site_ids_str = Self::join_site_ids(site_ids);
+		let url = self.prepare_url(&format!("/sites/{}/energy.json", site_ids_str), params)?;
+		trace!("site_energy_bulk, url: {}", url);
+		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
+		trace!("site_energy_bulk, response: {}", res);
+		let res = serde_json::from_str::<response::SiteEnergyBulkTop>(&res)?;
+		Ok(res.sites_energy)
+	}
 
 	/// Return the site total energy produced for a given period.
 	pub async fn site_time_frame_energy(&self, site_id: u64, params: &request::SiteTotalEnergy) -> Result<response::SiteTimeframeEnergy, Error<C::Error>> {
@@ -170,7 +204,17 @@ impl<C: HttpClientAdapter> Client<C> {
 		Ok(res.timeframe_energy)
 	}
 
-	// todo site total energy bulk
+	/// Return the multiple sites total energy produced for a given period.
+	pub async fn site_time_frame_energy_bulk(&self, site_ids: &[u64], params: &request::SiteTotalEnergy) -> Result<Vec<response::SiteTimeframeEnergyBulk>, Error<C::Error>> {
+		trace!("site_time_frame_energy_bulk, site_ids: {:?}, params: {:?}", site_ids, params);
+		let site_ids_str = Self::join_site_ids(site_ids);
+		let url = self.prepare_url(&format!("/sites/{}/timeFrameEnergy.json", site_ids_str), params)?;
+		trace!("site_time_frame_energy_bulk, url: {}", url);
+		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
+		trace!("site_time_frame_energy_bulk, response: {}", res);
+		let res = serde_json::from_str::<response::SiteTimeframeEnergyBulkTop>(&res)?;
+		Ok(res.timeframe_energy_list.timeframe_energy_list)
+	}
 
 	/// Return the site power measurements in 15 minutes resolution.
 	pub async fn site_power(&self, site_id: u64, params: &request::DateTimeRange) -> Result<response::SitePower, Error<C::Error>> {
@@ -183,7 +227,17 @@ impl<C: HttpClientAdapter> Client<C> {
 		Ok(res.power)
 	}
 
-	// todo site power bulk
+	/// Return the multiple sites power measurements in 15 minutes resolution.
+	pub async fn site_power_bulk(&self, site_ids: &[u64], params: &request::DateTimeRange) -> Result<response::SitePowerValueList, Error<C::Error>> {
+		trace!("site_power_bulk, site_ids: {:?}, params: {:?}", site_ids, params);
+		let site_ids_str = Self::join_site_ids(site_ids);
+		let url = self.prepare_url(&format!("/sites/{}/power.json", site_ids_str), params)?;
+		trace!("site_power_bulk, url: {}", url);
+		let res = self.client.get(url).await.map_err(Error::HttpRequest)?;
+		trace!("site_power_bulk, response: {}", res);
+		let res = serde_json::from_str::<response::SitePowerBulkTop>(&res)?;
+		Ok(res.power_date_values_list)
+	}
 
 	/// Display the site overview data.
 	pub async fn site_overview(&self, site_id: u64) -> Result<response::SiteOverview, Error<C::Error>> {
