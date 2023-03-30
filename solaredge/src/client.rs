@@ -1,15 +1,12 @@
 use std::fmt::{self, Write};
 
 use log::trace;
-use percent_encoding::{NON_ALPHANUMERIC, utf8_percent_encode};
+use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
 use serde::Serialize;
 use url::Url;
 
-use crate::{
-	api::{request, response},
-	Error,
-	HttpClientAdapter,
-};
+use crate::api::request;
+use crate::{response, Error, HttpClientAdapter};
 
 /// Client for accessing SolarEdge API
 ///
@@ -52,7 +49,10 @@ impl<C: HttpClientAdapter> Client<C> {
 	/// let client = solaredge::Client::<solaredge_reqwest::ReqwestAdapter>::new("API_KEY");
 	/// ```
 	#[inline]
-	pub fn new(api_key: impl Into<String>) -> Self where C: Default {
+	pub fn new(api_key: impl Into<String>) -> Self
+	where
+		C: Default,
+	{
 		Self::new_with_client(C::default(), api_key)
 	}
 
@@ -182,7 +182,11 @@ impl<C: HttpClientAdapter> Client<C> {
 	}
 
 	/// Return the energy production start and end dates of the multiple sites.
-	pub async fn site_energy_bulk(&self, site_ids: &[u64], params: &request::SiteEnergy) -> Result<response::SiteEnergyBulkList, Error<C::Error>> {
+	pub async fn site_energy_bulk(
+		&self,
+		site_ids: &[u64],
+		params: &request::SiteEnergy,
+	) -> Result<response::SiteEnergyBulkList, Error<C::Error>> {
 		trace!("site_energy_bulk, site_ids: {:?}, params: {:?}", site_ids, params);
 		let site_ids_str = Self::join_site_ids(site_ids);
 		let url = self.prepare_url(&format!("/sites/{}/energy.json", site_ids_str), params)?;
@@ -194,7 +198,11 @@ impl<C: HttpClientAdapter> Client<C> {
 	}
 
 	/// Return the site total energy produced for a given period.
-	pub async fn site_time_frame_energy(&self, site_id: u64, params: &request::SiteTotalEnergy) -> Result<response::SiteTimeframeEnergy, Error<C::Error>> {
+	pub async fn site_time_frame_energy(
+		&self,
+		site_id: u64,
+		params: &request::SiteTotalEnergy,
+	) -> Result<response::SiteTimeframeEnergy, Error<C::Error>> {
 		trace!("site_time_frame_energy, site_id: {}, params: {:?}", site_id, params);
 		let url = self.prepare_url(&format!("/site/{}/timeFrameEnergy.json", site_id), params)?;
 		trace!("site_time_frame_energy, url: {}", url);
@@ -205,7 +213,11 @@ impl<C: HttpClientAdapter> Client<C> {
 	}
 
 	/// Return the multiple sites total energy produced for a given period.
-	pub async fn site_time_frame_energy_bulk(&self, site_ids: &[u64], params: &request::SiteTotalEnergy) -> Result<Vec<response::SiteTimeframeEnergyBulk>, Error<C::Error>> {
+	pub async fn site_time_frame_energy_bulk(
+		&self,
+		site_ids: &[u64],
+		params: &request::SiteTotalEnergy,
+	) -> Result<Vec<response::SiteTimeframeEnergyBulk>, Error<C::Error>> {
 		trace!("site_time_frame_energy_bulk, site_ids: {:?}, params: {:?}", site_ids, params);
 		let site_ids_str = Self::join_site_ids(site_ids);
 		let url = self.prepare_url(&format!("/sites/{}/timeFrameEnergy.json", site_ids_str), params)?;
@@ -228,7 +240,11 @@ impl<C: HttpClientAdapter> Client<C> {
 	}
 
 	/// Return the multiple sites power measurements in 15 minutes resolution.
-	pub async fn site_power_bulk(&self, site_ids: &[u64], params: &request::DateTimeRange) -> Result<response::SitePowerValueList, Error<C::Error>> {
+	pub async fn site_power_bulk(
+		&self,
+		site_ids: &[u64],
+		params: &request::DateTimeRange,
+	) -> Result<response::SitePowerValueList, Error<C::Error>> {
 		trace!("site_power_bulk, site_ids: {:?}, params: {:?}", site_ids, params);
 		let site_ids_str = Self::join_site_ids(site_ids);
 		let url = self.prepare_url(&format!("/sites/{}/power.json", site_ids_str), params)?;
@@ -253,7 +269,11 @@ impl<C: HttpClientAdapter> Client<C> {
 	// todo site overview bulk
 
 	/// Detailed site power measurements from meters such as consumption, export (feed-in), import (purchase), etc.
-	pub async fn site_power_details(&self, site_id: u64, params: &request::SitePowerDetails<'_>) -> Result<response::SiteMetersDetails, Error<C::Error>> {
+	pub async fn site_power_details(
+		&self,
+		site_id: u64,
+		params: &request::SitePowerDetails<'_>,
+	) -> Result<response::SiteMetersDetails, Error<C::Error>> {
 		trace!("site_power_details, site_id: {}, params: {:?}", site_id, params);
 		let url = self.prepare_url(&format!("/site/{}/powerDetails.json", site_id), params)?;
 		trace!("site_power_details, url: {}", url);
@@ -264,7 +284,11 @@ impl<C: HttpClientAdapter> Client<C> {
 	}
 
 	/// Detailed site energy measurements from meters such as consumption, export (feed-in), import (purchase), etc.
-	pub async fn site_energy_details(&self, site_id: u64, params: &request::MetersDateTimeRange<'_>) -> Result<response::SiteMetersDetails, Error<C::Error>> {
+	pub async fn site_energy_details(
+		&self,
+		site_id: u64,
+		params: &request::MetersDateTimeRange<'_>,
+	) -> Result<response::SiteMetersDetails, Error<C::Error>> {
 		trace!("site_energy_details, site_id: {}, params: {:?}", site_id, params);
 		let url = self.prepare_url(&format!("/site/{}/energyDetails.json", site_id), params)?;
 		trace!("site_energy_details, url: {}", url);
@@ -286,7 +310,11 @@ impl<C: HttpClientAdapter> Client<C> {
 	}
 
 	/// Get detailed storage information from batteries: the state of energy, power and lifetime energy.
-	pub async fn site_storage_data(&self, site_id: u64, params: &request::SiteStorageData<'_>) -> Result<response::SiteStorageData, Error<C::Error>> {
+	pub async fn site_storage_data(
+		&self,
+		site_id: u64,
+		params: &request::SiteStorageData<'_>,
+	) -> Result<response::SiteStorageData, Error<C::Error>> {
 		trace!("site_storage_data, site_id: {}, params: {:?}", site_id, params);
 		let url = self.prepare_url(&format!("/site/{}/storageData.json", site_id), params)?;
 		trace!("site_storage_data, url: {}", url);
@@ -299,7 +327,11 @@ impl<C: HttpClientAdapter> Client<C> {
 	// todo site image
 
 	/// Returns all environmental benefits based on site energy production: CO2 emissions saved, equivalent trees planted, and light bulbs powered for a day.
-	pub async fn site_env_benefits(&self, site_id: u64, params: &request::SiteEnvBenefits) -> Result<response::SiteEnvBenefits, Error<C::Error>> {
+	pub async fn site_env_benefits(
+		&self,
+		site_id: u64,
+		params: &request::SiteEnvBenefits,
+	) -> Result<response::SiteEnvBenefits, Error<C::Error>> {
 		trace!("site_env_benefits, site_id: {}, params: {:?}", site_id, params);
 		let url = self.prepare_url(&format!("/site/{}/envBenefits.json", site_id), params)?;
 		trace!("site_env_benefits, url: {}", url);
@@ -323,7 +355,11 @@ impl<C: HttpClientAdapter> Client<C> {
 	}
 
 	/// Returns for each meter on site its lifetime energy reading, metadata and the device to which it’s connected to.
-	pub async fn site_meters(&self, site_id: u64, params: &request::MetersDateTimeRange<'_>) -> Result<response::SiteMeters, Error<C::Error>> {
+	pub async fn site_meters(
+		&self,
+		site_id: u64,
+		params: &request::MetersDateTimeRange<'_>,
+	) -> Result<response::SiteMeters, Error<C::Error>> {
 		trace!("site_meters, site_id: {}, params: {:?}", site_id, params);
 		let url = self.prepare_url(&format!("/site/{}/meters.json", site_id), params)?;
 		trace!("site_meters, url: {}", url);
@@ -345,7 +381,12 @@ impl<C: HttpClientAdapter> Client<C> {
 	}
 
 	/// Return specific inverter data for a given timeframe.
-	pub async fn equipment_data(&self, site_id: u64, serial_number: &str, params: &request::DateTimeRange) -> Result<Vec<response::EquipmentTelemetry>, Error<C::Error>> {
+	pub async fn equipment_data(
+		&self,
+		site_id: u64,
+		serial_number: &str,
+		params: &request::DateTimeRange,
+	) -> Result<Vec<response::EquipmentTelemetry>, Error<C::Error>> {
 		trace!("equipment_data, site_id: {}, params: {:?}", site_id, params);
 		let serial_number = utf8_percent_encode(serial_number, NON_ALPHANUMERIC);
 		let url = self.prepare_url(&format!("/equipment/{}/{}/data.json", site_id, serial_number), params)?;

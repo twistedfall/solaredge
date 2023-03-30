@@ -14,8 +14,8 @@ pub enum SortOrder {
 impl Display for SortOrder {
 	fn fmt(&self, f: &mut Formatter) -> FmtResult {
 		let s = match self {
-			SortOrder::Ascending => { "ASC" }
-			SortOrder::Descending => { "DESC" }
+			SortOrder::Ascending => "ASC",
+			SortOrder::Descending => "DESC",
 		};
 		f.write_str(s)
 	}
@@ -40,18 +40,18 @@ pub enum SiteSortBy {
 impl Display for SiteSortBy {
 	fn fmt(&self, f: &mut Formatter) -> FmtResult {
 		let s = match self {
-			SiteSortBy::Name => { "Name" }
-			SiteSortBy::Country => { "Country" }
-			SiteSortBy::State => { "State" }
-			SiteSortBy::City => { "City" }
-			SiteSortBy::Address => { "Address" }
-			SiteSortBy::Zip => { "Zip" }
-			SiteSortBy::Status => { "Status" }
-			SiteSortBy::PeakPower => { "PeakPower" }
-			SiteSortBy::InstallationDate => { "InstallationDate" }
-			SiteSortBy::Amount => { "Amount" }
-			SiteSortBy::MaxSeverity => { "MaxSeverity" }
-			SiteSortBy::CreationTime => { "CreationTime" }
+			SiteSortBy::Name => "Name",
+			SiteSortBy::Country => "Country",
+			SiteSortBy::State => "State",
+			SiteSortBy::City => "City",
+			SiteSortBy::Address => "Address",
+			SiteSortBy::Zip => "Zip",
+			SiteSortBy::Status => "Status",
+			SiteSortBy::PeakPower => "PeakPower",
+			SiteSortBy::InstallationDate => "InstallationDate",
+			SiteSortBy::Amount => "Amount",
+			SiteSortBy::MaxSeverity => "MaxSeverity",
+			SiteSortBy::CreationTime => "CreationTime",
 		};
 		f.write_str(s)
 	}
@@ -68,10 +68,10 @@ pub enum SiteStatus {
 impl Display for SiteStatus {
 	fn fmt(&self, f: &mut Formatter) -> FmtResult {
 		let s = match self {
-			SiteStatus::Active => { "Active" }
-			SiteStatus::Pending => { "Pending" }
-			SiteStatus::Disabled => { "Disabled" }
-			SiteStatus::All => { "All" }
+			SiteStatus::Active => "Active",
+			SiteStatus::Pending => "Pending",
+			SiteStatus::Disabled => "Disabled",
+			SiteStatus::All => "All",
 		};
 		f.write_str(s)
 	}
@@ -105,11 +105,11 @@ pub enum MeterType {
 impl Display for MeterType {
 	fn fmt(&self, f: &mut Formatter) -> FmtResult {
 		let s = match self {
-			MeterType::Production => { "Production" }
-			MeterType::Consumption => { "Consumption" }
-			MeterType::SelfConsumption => { "SelfConsumption" }
-			MeterType::FeedIn => { "FeedIn" }
-			MeterType::Purchased => { "Purchased" }
+			MeterType::Production => "Production",
+			MeterType::Consumption => "Consumption",
+			MeterType::SelfConsumption => "SelfConsumption",
+			MeterType::FeedIn => "FeedIn",
+			MeterType::Purchased => "Purchased",
 		};
 		f.write_str(s)
 	}
@@ -179,4 +179,3 @@ pub enum SystemUnits {
 	Metrics,
 	Imperial,
 }
-

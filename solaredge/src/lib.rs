@@ -39,16 +39,14 @@
 //! }
 //! ```
 
-pub use api::{
-	enums::*,
-	request::*,
-	response,
-};
+pub use api::enums::*;
+pub use api::request::*;
+pub use api::response;
 pub use client::Client;
 pub use error::Error;
 pub use http::HttpClientAdapter;
 
 pub mod api;
 pub mod client;
-mod http;
 mod error;
+mod http;

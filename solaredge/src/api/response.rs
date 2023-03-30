@@ -1,12 +1,8 @@
 use chrono::{NaiveDate, NaiveDateTime};
 use serde::Deserialize;
 
-use super::{
-	DateSerde,
-	DateTimeSerde,
-	DateTimeSerdeOpt,
-	enums::{InverterMode, MeterType, OperationMode, SiteStatus, TimeUnit},
-};
+use super::enums::{InverterMode, MeterType, OperationMode, SiteStatus, TimeUnit};
+use super::{DateSerde, DateTimeSerde, DateTimeSerdeOpt};
 
 #[derive(Debug, Deserialize)]
 pub struct List<T> {

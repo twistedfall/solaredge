@@ -11,10 +11,18 @@ pub enum Error<E> {
 impl<E: fmt::Display> fmt::Display for Error<E> {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		match self {
-			Error::UrlParse(e) => { write!(f, "URL parse error: {}", e) }
-			Error::UrlEncode(e) => { write!(f, "Parameter encoding error: {}", e) }
-			Error::HttpRequest(e) => { write!(f, "HTTP request error: {}", e) }
-			Error::Json(e) => { write!(f, "JSON error: {}", e) }
+			Error::UrlParse(e) => {
+				write!(f, "URL parse error: {}", e)
+			}
+			Error::UrlEncode(e) => {
+				write!(f, "Parameter encoding error: {}", e)
+			}
+			Error::HttpRequest(e) => {
+				write!(f, "HTTP request error: {}", e)
+			}
+			Error::Json(e) => {
+				write!(f, "JSON error: {}", e)
+			}
 		}
 	}
 }

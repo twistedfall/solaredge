@@ -1,7 +1,8 @@
 use std::fmt::{Display, Write};
 
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime, ParseResult};
-use serde::{de::Error, Deserialize, Deserializer, Serialize, Serializer};
+use serde::de::Error;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 pub mod enums;
 pub mod request;
@@ -37,7 +38,7 @@ fn str_to_datetime(s: &str) -> ParseResult<NaiveDateTime> {
 		Err(_) => {
 			let date = NaiveDate::parse_from_str(s, "%Y-%m-%d")?;
 			Ok(NaiveDateTime::new(date, NaiveTime::from_hms(0, 0, 0)))
-		},
+		}
 	}
 }
 
@@ -94,4 +95,3 @@ impl DateSerde {
 		str_to_date(&s).map_err(|e| D::Error::custom(format!("Date parse error, input: {}, error: {}", s, e)))
 	}
 }
-

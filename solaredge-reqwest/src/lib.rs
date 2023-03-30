@@ -26,11 +26,7 @@ impl HttpClientAdapter for ReqwestAdapter {
 	type Error = reqwest::Error;
 
 	async fn get(&self, url: Url) -> Result<String, Self::Error> {
-		let res = self.client
-			.get(url)
-			.send()
-			.await?
-			.error_for_status()?;
+		let res = self.client.get(url).send().await?.error_for_status()?;
 		Ok(res.text().await?)
 	}
 }

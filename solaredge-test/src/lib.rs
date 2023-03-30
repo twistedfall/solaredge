@@ -3,7 +3,10 @@ mod tests {
 	use chrono::{NaiveDate, NaiveTime};
 	use tokio_test::block_on;
 
-	use solaredge::{Client, DateTimeRange, MetersDateTimeRange, SiteEnergy, SiteEnvBenefits, SitePowerDetails, SitesList, SiteStatus, SiteStorageData, SiteTotalEnergy, SortOrder, SystemUnits, TimeUnit};
+	use solaredge::{
+		Client, DateTimeRange, MetersDateTimeRange, SiteEnergy, SiteEnvBenefits, SitePowerDetails, SiteStatus, SiteStorageData,
+		SiteTotalEnergy, SitesList, SortOrder, SystemUnits, TimeUnit,
+	};
 	use solaredge_reqwest::ReqwestAdapter;
 
 	#[test]
@@ -21,9 +24,7 @@ mod tests {
 		p.search_text = Some("bbb");
 		let sites = block_on(c.sites_list(&p)).unwrap();
 		dbg!(&sites);
-		let mut site_ids = sites.iter()
-			.map(|s| s.id)
-			.collect::<Vec<_>>();
+		let mut site_ids = sites.iter().map(|s| s.id).collect::<Vec<_>>();
 		if site_ids.len() == 1 {
 			site_ids.push(site_ids.first().copied().unwrap_or_default());
 		}
@@ -68,12 +69,16 @@ mod tests {
 			};
 			let power_details = block_on(c.site_power_details(site.id, &p)).unwrap();
 			dbg!(&power_details);
-			let energy_details = block_on(c.site_energy_details(site.id, &MetersDateTimeRange {
-				start_time: NaiveDate::from_ymd(2021, 8, 10).and_time(NaiveTime::from_hms(0, 0, 0)),
-				end_time: NaiveDate::from_ymd(2021, 8, 12).and_time(NaiveTime::from_hms(0, 0, 0)),
-				time_unit: None,
-				meters: None,
-			})).unwrap();
+			let energy_details = block_on(c.site_energy_details(
+				site.id,
+				&MetersDateTimeRange {
+					start_time: NaiveDate::from_ymd(2021, 8, 10).and_time(NaiveTime::from_hms(0, 0, 0)),
+					end_time: NaiveDate::from_ymd(2021, 8, 12).and_time(NaiveTime::from_hms(0, 0, 0)),
+					time_unit: None,
+					meters: None,
+				},
+			))
+			.unwrap();
 			dbg!(&energy_details);
 			let power_flow = block_on(c.site_current_power_flow(site.id)).unwrap();
 			dbg!(&power_flow);
@@ -84,16 +89,24 @@ mod tests {
 			};
 			let storage_data = block_on(c.site_storage_data(site.id, &p)).unwrap();
 			dbg!(&storage_data);
-			let env_benefits = block_on(c.site_env_benefits(site.id, &SiteEnvBenefits {
-				system_units: Some(SystemUnits::Metrics),
-			})).unwrap();
+			let env_benefits = block_on(c.site_env_benefits(
+				site.id,
+				&SiteEnvBenefits {
+					system_units: Some(SystemUnits::Metrics),
+				},
+			))
+			.unwrap();
 			dbg!(&env_benefits);
-			let meters = block_on(c.site_meters(site.id, &MetersDateTimeRange {
-				start_time: NaiveDate::from_ymd(2021, 8, 10).and_time(NaiveTime::from_hms(0, 0, 0)),
-				end_time: NaiveDate::from_ymd(2021, 8, 12).and_time(NaiveTime::from_hms(0, 0, 0)),
-				time_unit: None,
-				meters: None,
-			})).unwrap();
+			let meters = block_on(c.site_meters(
+				site.id,
+				&MetersDateTimeRange {
+					start_time: NaiveDate::from_ymd(2021, 8, 10).and_time(NaiveTime::from_hms(0, 0, 0)),
+					end_time: NaiveDate::from_ymd(2021, 8, 12).and_time(NaiveTime::from_hms(0, 0, 0)),
+					time_unit: None,
+					meters: None,
+				},
+			))
+			.unwrap();
 			dbg!(&meters);
 			let equipment = block_on(c.equipment_list(site.id)).unwrap();
 			dbg!(&equipment);
