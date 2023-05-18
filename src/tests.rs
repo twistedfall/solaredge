@@ -31,21 +31,25 @@ fn it_works() {
 	let data_bulk = block_on(c.site_data_period_bulk(&site_ids)).unwrap();
 	dbg!(&data_bulk);
 	let site_energy_param = SiteEnergy {
-		start_date: NaiveDate::from_ymd(2021, 8, 10),
-		end_date: NaiveDate::from_ymd(2021, 8, 12),
+		start_date: NaiveDate::from_ymd_opt(2021, 8, 10).unwrap(),
+		end_date: NaiveDate::from_ymd_opt(2021, 8, 12).unwrap(),
 		time_unit: Some(TimeUnit::QuarterOfAnHour),
 	};
 	let energy_bulk = block_on(c.site_energy_bulk(&site_ids, &site_energy_param)).unwrap();
 	dbg!(&energy_bulk);
 	let site_total_energy_param = SiteTotalEnergy {
-		start_date: NaiveDate::from_ymd(2021, 8, 10),
-		end_date: NaiveDate::from_ymd(2021, 8, 12),
+		start_date: NaiveDate::from_ymd_opt(2021, 8, 10).unwrap(),
+		end_date: NaiveDate::from_ymd_opt(2021, 8, 12).unwrap(),
 	};
 	let energy_bulk = block_on(c.site_time_frame_energy_bulk(&site_ids, &site_total_energy_param)).unwrap();
 	dbg!(&energy_bulk);
 	let date_time_range_param = DateTimeRange {
-		start_time: NaiveDate::from_ymd(2021, 8, 10).and_time(NaiveTime::from_hms(0, 0, 0)),
-		end_time: NaiveDate::from_ymd(2021, 8, 12).and_time(NaiveTime::from_hms(0, 0, 0)),
+		start_time: NaiveDate::from_ymd_opt(2021, 8, 10)
+			.unwrap()
+			.and_time(NaiveTime::from_hms_opt(0, 0, 0).unwrap()),
+		end_time: NaiveDate::from_ymd_opt(2021, 8, 12)
+			.unwrap()
+			.and_time(NaiveTime::from_hms_opt(0, 0, 0).unwrap()),
 	};
 	let power_bulk = block_on(c.site_power_bulk(&site_ids, &date_time_range_param)).unwrap();
 	dbg!(&power_bulk);
@@ -63,28 +67,42 @@ fn it_works() {
 		let overview = block_on(c.site_overview(site.id)).unwrap();
 		dbg!(&overview);
 		let p = SitePowerDetails {
-			start_time: NaiveDate::from_ymd(2021, 8, 10).and_time(NaiveTime::from_hms(0, 0, 0)),
-			end_time: NaiveDate::from_ymd(2021, 8, 12).and_time(NaiveTime::from_hms(0, 0, 0)),
+			start_time: NaiveDate::from_ymd_opt(2021, 8, 10)
+				.unwrap()
+				.and_time(NaiveTime::from_hms_opt(0, 0, 0).unwrap()),
+			end_time: NaiveDate::from_ymd_opt(2021, 8, 12)
+				.unwrap()
+				.and_time(NaiveTime::from_hms_opt(0, 0, 0).unwrap()),
 			meters: None,
 		};
 		let power_details = block_on(c.site_power_details(site.id, &p)).unwrap();
 		dbg!(&power_details);
-		let energy_details = block_on(c.site_energy_details(
-			site.id,
-			&MetersDateTimeRange {
-				start_time: NaiveDate::from_ymd(2021, 8, 10).and_time(NaiveTime::from_hms(0, 0, 0)),
-				end_time: NaiveDate::from_ymd(2021, 8, 12).and_time(NaiveTime::from_hms(0, 0, 0)),
-				time_unit: None,
-				meters: None,
-			},
-		))
+		let energy_details = block_on(
+			c.site_energy_details(
+				site.id,
+				&MetersDateTimeRange {
+					start_time: NaiveDate::from_ymd_opt(2021, 8, 10)
+						.unwrap()
+						.and_time(NaiveTime::from_hms_opt(0, 0, 0).unwrap()),
+					end_time: NaiveDate::from_ymd_opt(2021, 8, 12)
+						.unwrap()
+						.and_time(NaiveTime::from_hms_opt(0, 0, 0).unwrap()),
+					time_unit: None,
+					meters: None,
+				},
+			),
+		)
 		.unwrap();
 		dbg!(&energy_details);
 		let power_flow = block_on(c.site_current_power_flow(site.id)).unwrap();
 		dbg!(&power_flow);
 		let p = SiteStorageData {
-			start_time: NaiveDate::from_ymd(2021, 8, 10).and_time(NaiveTime::from_hms(0, 0, 0)),
-			end_time: NaiveDate::from_ymd(2021, 8, 12).and_time(NaiveTime::from_hms(0, 0, 0)),
+			start_time: NaiveDate::from_ymd_opt(2021, 8, 10)
+				.unwrap()
+				.and_time(NaiveTime::from_hms_opt(0, 0, 0).unwrap()),
+			end_time: NaiveDate::from_ymd_opt(2021, 8, 12)
+				.unwrap()
+				.and_time(NaiveTime::from_hms_opt(0, 0, 0).unwrap()),
 			serials: None,
 		};
 		let storage_data = block_on(c.site_storage_data(site.id, &p)).unwrap();
@@ -97,15 +115,21 @@ fn it_works() {
 		))
 		.unwrap();
 		dbg!(&env_benefits);
-		let meters = block_on(c.site_meters(
-			site.id,
-			&MetersDateTimeRange {
-				start_time: NaiveDate::from_ymd(2021, 8, 10).and_time(NaiveTime::from_hms(0, 0, 0)),
-				end_time: NaiveDate::from_ymd(2021, 8, 12).and_time(NaiveTime::from_hms(0, 0, 0)),
-				time_unit: None,
-				meters: None,
-			},
-		))
+		let meters = block_on(
+			c.site_meters(
+				site.id,
+				&MetersDateTimeRange {
+					start_time: NaiveDate::from_ymd_opt(2021, 8, 10)
+						.unwrap()
+						.and_time(NaiveTime::from_hms_opt(0, 0, 0).unwrap()),
+					end_time: NaiveDate::from_ymd_opt(2021, 8, 12)
+						.unwrap()
+						.and_time(NaiveTime::from_hms_opt(0, 0, 0).unwrap()),
+					time_unit: None,
+					meters: None,
+				},
+			),
+		)
 		.unwrap();
 		dbg!(&meters);
 		let equipment = block_on(c.equipment_list(site.id)).unwrap();
@@ -114,8 +138,12 @@ fn it_works() {
 		dbg!(&inventory);
 		for inv in inventory.inverters {
 			let p = DateTimeRange {
-				start_time: NaiveDate::from_ymd(2021, 8, 10).and_time(NaiveTime::from_hms(0, 0, 0)),
-				end_time: NaiveDate::from_ymd(2021, 8, 12).and_time(NaiveTime::from_hms(0, 0, 0)),
+				start_time: NaiveDate::from_ymd_opt(2021, 8, 10)
+					.unwrap()
+					.and_time(NaiveTime::from_hms_opt(0, 0, 0).unwrap()),
+				end_time: NaiveDate::from_ymd_opt(2021, 8, 12)
+					.unwrap()
+					.and_time(NaiveTime::from_hms_opt(0, 0, 0).unwrap()),
 			};
 			let equipment_data = block_on(c.equipment_data(site.id, &inv.sn, &p)).unwrap();
 			dbg!(&equipment_data);
