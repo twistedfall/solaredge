@@ -37,7 +37,10 @@ fn str_to_datetime(s: &str) -> ParseResult<NaiveDateTime> {
 		Ok(d) => Ok(d),
 		Err(_) => {
 			let date = NaiveDate::parse_from_str(s, "%Y-%m-%d")?;
-			Ok(NaiveDateTime::new(date, NaiveTime::from_hms(0, 0, 0)))
+			Ok(NaiveDateTime::new(
+				date,
+				NaiveTime::from_hms_opt(0, 0, 0).expect("Static time"),
+			))
 		}
 	}
 }
