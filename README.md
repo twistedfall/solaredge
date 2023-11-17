@@ -9,7 +9,7 @@ See [full documentation](https://docs.rs/solaredge)
 Add this to your Cargo.toml:
 ```
 [dependencies]
-solaredge = "0.3.1"
+solaredge = "0.4.0"
 ```
 
 ## Asynchronous SolarEdge API client for Rust
