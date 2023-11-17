@@ -12,7 +12,7 @@ exclude = ["/.github", ".gitignore", "/tools", "release.toml", "rustfmt.toml", "
 [dependencies]
 async-trait = "0.1"
 chrono = "0.4"
-http-adapter = "0.1"
+http-adapter = "0.2"
 log = "0.4"
 percent-encoding = "2"
 serde = { version = "1", features = ["derive"] }
@@ -23,5 +23,5 @@ url = "2"
 
 [dev-dependencies]
 env_logger = "0.10"
-http-adapter-reqwest = "0.1"
+http-adapter-reqwest = "0.2"
 tokio-test = "0.4"
