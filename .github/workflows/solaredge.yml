@@ -3,18 +3,26 @@ on:
   push:
     branches:
       - "*"
-    tags_ignore:
-      - "*"
   pull_request:
     branches:
       - "*"
 jobs:
   ci:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
+    env:
+      SCCACHE_GHA_ENABLED: "true"
+      RUSTC_WRAPPER: "sccache"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: mozilla-actions/sccache-action@v0.0.4
+      - name: Get crate rust-version
+        id: crate_rust_version
+        run: cargo metadata --no-deps --format-version 1 | jq -r '"version="+(.packages[]|select(.name=="solaredge").rust_version)' >> $GITHUB_OUTPUT
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ steps.crate_rust_version.outputs.version }}
+          components: clippy
 
       - name: Clippy
         run: cargo clippy --workspace --all-targets --all-features --tests -- -D warnings
