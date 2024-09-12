@@ -1,11 +1,14 @@
 use std::fmt;
 
+use http_adapter::http;
+
 #[derive(Debug)]
 pub enum Error<E> {
 	UrlParse(url::ParseError),
 	UrlEncode(serde_urlencoded::ser::Error),
 	HttpRequest(E),
 	Json(serde_json::Error),
+	Api(http::StatusCode, Vec<u8>),
 }
 
 impl<E: fmt::Display> fmt::Display for Error<E> {
@@ -22,6 +25,9 @@ impl<E: fmt::Display> fmt::Display for Error<E> {
 			}
 			Error::Json(e) => {
 				write!(f, "JSON error: {e}")
+			}
+			Error::Api(status, _) => {
+				write!(f, "Solaredge HTTP API error: {status}")
 			}
 		}
 	}

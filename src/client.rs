@@ -1,7 +1,7 @@
 use std::fmt;
 use std::fmt::Write;
 
-use http_adapter::{HttpClientAdapter, Request};
+use http_adapter::{HttpClientAdapter, Request, Response};
 use log::trace;
 use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
 use serde::Serialize;
@@ -119,7 +119,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("version_current, response: {:?}", res);
 		let res = serde_json::from_slice::<response::VersionCurrentTop>(res.body())?;
 		Ok(res.version.release)
@@ -133,7 +134,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("version_supported, response: {:?}", res);
 		let res = serde_json::from_slice::<response::VersionSupportedTop>(res.body())?;
 		Ok(res.supported)
@@ -148,7 +150,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("sites_list, response: {:?}", res);
 		let res = serde_json::from_slice::<response::SitesListTop>(res.body())?;
 		Ok(res.sites.site)
@@ -163,7 +166,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("site_details, response: {:?}", res);
 		let res = serde_json::from_slice::<response::SiteDetailsTop>(res.body())?;
 		Ok(res.details)
@@ -178,7 +182,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("site_data_period, response: {:?}", res);
 		let res = serde_json::from_slice::<response::SiteDataPeriodTop>(res.body())?;
 		Ok(res.data_period)
@@ -194,7 +199,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("site_data_period_bulk, response: {:?}", res);
 		let res = serde_json::from_slice::<response::SiteDataPeriodBulkTop>(res.body())?;
 		Ok(res.date_period_list.site_energy_list)
@@ -209,7 +215,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("site_energy, response: {:?}", res);
 		let res = serde_json::from_slice::<response::SiteEnergyTop>(res.body())?;
 		Ok(res.energy)
@@ -229,7 +236,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("site_energy_bulk, response: {:?}", res);
 		let res = serde_json::from_slice::<response::SiteEnergyBulkTop>(res.body())?;
 		Ok(res.sites_energy)
@@ -248,7 +256,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("site_time_frame_energy, response: {:?}", res);
 		let res = serde_json::from_slice::<response::SiteTimeframeEnergyTop>(res.body())?;
 		Ok(res.timeframe_energy)
@@ -268,7 +277,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("site_time_frame_energy_bulk, response: {:?}", res);
 		let res = serde_json::from_slice::<response::SiteTimeframeEnergyBulkTop>(res.body())?;
 		Ok(res.timeframe_energy_list.timeframe_energy_list)
@@ -283,7 +293,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("site_power, response: {:?}", res);
 		let res = serde_json::from_slice::<response::SitePowerTop>(res.body())?;
 		Ok(res.power)
@@ -303,7 +314,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("site_power_bulk, response: {:?}", res);
 		let res = serde_json::from_slice::<response::SitePowerBulkTop>(res.body())?;
 		Ok(res.power_date_values_list)
@@ -318,7 +330,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("site_overview, response: {:?}", res);
 		let res = serde_json::from_slice::<response::SiteOverviewTop>(res.body())?;
 		Ok(res.overview)
@@ -339,7 +352,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("site_power_details, response: {:?}", res);
 		let res = serde_json::from_slice::<response::SitePowerDetailsTop>(res.body())?;
 		Ok(res.power_details)
@@ -358,7 +372,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("site_energy_details, response: {:?}", res);
 		let res = serde_json::from_slice::<response::SiteEnergyDetailsTop>(res.body())?;
 		Ok(res.energy_details)
@@ -373,7 +388,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("site_current_power_flow, response: {:?}", res);
 		let res = serde_json::from_slice::<response::SiteCurrentPowerFlowTop>(res.body())?;
 		Ok(res.site_current_power_flow)
@@ -392,7 +408,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("site_storage_data, response: {:?}", res);
 		let res = serde_json::from_slice::<response::SiteStorageDataTop>(res.body())?;
 		Ok(res.storage_data)
@@ -413,7 +430,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("site_env_benefits, response: {:?}", res);
 		let res = serde_json::from_slice::<response::SiteEnvBenefitsTop>(res.body())?;
 		Ok(res.env_benefits)
@@ -430,7 +448,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("site_inventory, response: {:?}", res);
 		let res = serde_json::from_slice::<response::SiteInventoryTop>(res.body())?;
 		Ok(res.inventory)
@@ -449,7 +468,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("site_meters, response: {:?}", res);
 		let res = serde_json::from_slice::<response::SiteMetersTop>(res.body())?;
 		Ok(res.meter_energy_details)
@@ -464,7 +484,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("equipment_list, response: {:?}", res);
 		let res = serde_json::from_slice::<response::EquipmentListTop>(res.body())?;
 		Ok(res.reporters.list)
@@ -485,7 +506,8 @@ impl<C: HttpClientAdapter> Client<C> {
 			.client
 			.execute(Self::request_get(url))
 			.await
-			.map_err(Error::HttpRequest)?;
+			.map_err(Error::HttpRequest)?
+			.error_for_status()?;
 		trace!("equipment_data, response: {:?}", res);
 		let res = serde_json::from_slice::<response::EquipmentDataTop>(res.body())?;
 		Ok(res.data.telemetries)
@@ -513,5 +535,20 @@ impl<C: fmt::Debug> fmt::Debug for Client<C> {
 			.field("base_url", &self.base_url)
 			.field("api_key", &"<hidden>")
 			.finish()
+	}
+}
+
+trait ResponseExt: Sized {
+	fn error_for_status<E>(self) -> Result<Self, Error<E>>;
+}
+
+impl ResponseExt for Response<Vec<u8>> {
+	fn error_for_status<E>(self) -> Result<Self, Error<E>> {
+		let status = self.status();
+		if status.is_client_error() || status.is_server_error() {
+			Err(Error::Api(status, self.into_body()))
+		} else {
+			Ok(self)
+		}
 	}
 }
