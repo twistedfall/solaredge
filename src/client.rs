@@ -34,7 +34,7 @@ pub struct Client<C> {
 }
 
 impl<C: HttpClientAdapter> Client<C> {
-	/// Construct a new client using an HTTP client implementation that has `HttpClientAdapter::default()`
+	/// Construct a new client using an HTTP client implementation that has [HttpClientAdapter::default()]
 	///
 	/// # Example
 	/// ```
@@ -58,7 +58,7 @@ impl<C: HttpClientAdapter> Client<C> {
 		Self::new_with_client(C::default(), api_key)
 	}
 
-	/// Construct a new client using a passed `HttpClientAdapter` implementation
+	/// Construct a new client using a passed [HttpClientAdapter] implementation
 	///
 	/// # Example
 	/// ```
