@@ -4,14 +4,14 @@ use std::fmt::Write;
 use http_adapter::http::header::CONTENT_TYPE;
 use http_adapter::{HttpClientAdapter, Request, Response};
 use log::trace;
-use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
-use serde::de::DeserializeOwned;
+use percent_encoding::{NON_ALPHANUMERIC, utf8_percent_encode};
 use serde::Serialize;
+use serde::de::DeserializeOwned;
 use url::Url;
 
+use crate::Error;
 use crate::api::request;
 use crate::response::{accounts, equipment, site, version};
-use crate::Error;
 
 /// Client for accessing SolarEdge API
 ///
@@ -462,7 +462,6 @@ impl<C: HttpClientAdapter> Client<C> {
 		if !query.is_empty() {
 			out.set_query(Some(&query));
 		}
-		out.query_pairs_mut().append_pair("api_key", &self.api_key);
 		Ok(out)
 	}
 
@@ -492,9 +491,13 @@ impl<C: HttpClientAdapter> Client<C> {
 	async fn perform_request(&self, url_path: &str, params: impl Serialize) -> Result<Response<Vec<u8>>, Error<C::Error>> {
 		let url = self.prepare_url(url_path, params)?;
 		trace!("{url_path}: url: {url}");
+		let req = Request::get(url.to_string())
+			.header("X-API-Key", &self.api_key)
+			.body(vec![])
+			.expect("Static request");
 		let out = self
 			.client
-			.execute(Request::get(url.to_string()).body(vec![]).expect("Static request"))
+			.execute(req)
 			.await
 			.map_err(Error::HttpRequest)?
 			.error_for_status()?;
