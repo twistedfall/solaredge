@@ -122,7 +122,7 @@ pub enum InverterMode {
 	/// production (Maximum Power Point Tracking)
 	Mppt,
 	/// Forced power reduction
-	Thtottled,
+	Throttled,
 	/// Shutdown procedure
 	ShuttingDown,
 	/// error mode

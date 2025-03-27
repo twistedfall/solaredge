@@ -10,10 +10,10 @@ use crate::{
 async fn it_works() {
 	env_logger::init();
 	let c = Client::<ReqwestAdapter>::new("");
-	let start_datetime = NaiveDate::from_ymd_opt(2021, 8, 10)
+	let start_datetime = NaiveDate::from_ymd_opt(2024, 8, 10)
 		.unwrap()
 		.and_time(NaiveTime::from_hms_opt(10, 24, 19).unwrap());
-	let end_datetime = NaiveDate::from_ymd_opt(2021, 8, 12)
+	let end_datetime = NaiveDate::from_ymd_opt(2024, 8, 12)
 		.unwrap()
 		.and_time(NaiveTime::from_hms_opt(8, 12, 14).unwrap());
 	let version = c.version_current().await.unwrap();
