@@ -3,10 +3,10 @@ name = "solaredge"
 description = "SolarEdge API client"
 version = "0.4.2"
 documentation = "https://docs.rs/solaredge"
-homepage = "https://github.com/twistedfall/solaredge/tree/master/solaredge"
+homepage = "https://github.com/twistedfall/solaredge"
 repository = "https://github.com/twistedfall/solaredge"
-edition = "2021"
-rust-version = "1.71.0"
+edition = "2024"
+rust-version = "1.85.0"
 license = "LGPL-3.0"
 exclude = ["/.github", ".gitignore", "/tools", "release.toml", "rustfmt.toml", "README.tpl"]
 
