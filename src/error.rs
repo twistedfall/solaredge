@@ -8,7 +8,7 @@ pub enum Error<E> {
 	UrlEncode(serde_urlencoded::ser::Error),
 	HttpRequest(E),
 	Json(serde_json::Error),
-	Api(http::StatusCode, Vec<u8>),
+	Api(http::StatusCode, String),
 }
 
 impl<E: fmt::Display> fmt::Display for Error<E> {

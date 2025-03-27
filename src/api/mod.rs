@@ -23,7 +23,6 @@ fn serialize_comma_slice<T: Display, S: Serializer>(slice: &[T], ser: S) -> Resu
 	res.serialize(ser)
 }
 
-#[inline]
 fn serialize_comma_slice_opt<T: Display, S: Serializer>(slice: &Option<&[T]>, ser: S) -> Result<S::Ok, S::Error> {
 	if let Some(slice) = slice {
 		serialize_comma_slice(slice, ser)
@@ -65,7 +64,6 @@ impl DateTimeSerde {
 struct DateTimeSerdeOpt;
 
 impl DateTimeSerdeOpt {
-	#[inline]
 	#[allow(unused)]
 	fn serialize<S: Serializer>(d: &Option<NaiveDateTime>, ser: S) -> Result<S::Ok, S::Error> {
 		if let Some(d) = d {
@@ -75,7 +73,6 @@ impl DateTimeSerdeOpt {
 		}
 	}
 
-	#[inline]
 	fn deserialize<'d, D: Deserializer<'d>>(d: D) -> Result<Option<NaiveDateTime>, D::Error> {
 		Ok(match Option::<String>::deserialize(d)? {
 			None => None,
