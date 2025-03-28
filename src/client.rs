@@ -456,15 +456,6 @@ impl<C: HttpClientAdapter> Client<C> {
 			.map(|res| res.accounts.list)
 	}
 
-	fn prepare_url<E>(&self, path: &str, params: impl Serialize) -> Result<Url, Error<E>> {
-		let mut out = self.base_url.join(path).expect("Static URL parsing failed");
-		let query = serde_urlencoded::to_string(params)?;
-		if !query.is_empty() {
-			out.set_query(Some(&query));
-		}
-		Ok(out)
-	}
-
 	fn join_site_ids(ids: &[u64]) -> String {
 		let mut out = String::with_capacity(ids.len() * 10);
 		let mut first = true;
@@ -489,7 +480,11 @@ impl<C: HttpClientAdapter> Client<C> {
 	}
 
 	async fn perform_request(&self, url_path: &str, params: impl Serialize) -> Result<Response<Vec<u8>>, Error<C::Error>> {
-		let url = self.prepare_url(url_path, params)?;
+		let mut url = self.base_url.join(url_path).expect("Static URL parsing failed");
+		let query = serde_urlencoded::to_string(params)?;
+		if !query.is_empty() {
+			url.set_query(Some(&query));
+		}
 		trace!("{url_path}: url: {url}");
 		let req = Request::get(url.to_string())
 			.header("X-API-Key", &self.api_key)
