@@ -461,10 +461,10 @@ impl<C: HttpClientAdapter> Client<C> {
 		let mut first = true;
 		for id in ids {
 			if first {
-				write!(out, "{}", id).expect("Impossible");
+				write!(out, "{id}").expect("Impossible");
 				first = false;
 			} else {
-				write!(out, ",{}", id).expect("Impossible");
+				write!(out, ",{id}").expect("Impossible");
 			}
 		}
 		out

@@ -15,7 +15,7 @@ fn serialize_comma_slice<T: Display, S: Serializer>(slice: &[T], ser: S) -> Resu
 		if !first {
 			res.push(',');
 		}
-		write!(&mut res, "{}", v).map_err(|e| serde::ser::Error::custom(e.to_string()))?;
+		write!(&mut res, "{v}").map_err(|e| serde::ser::Error::custom(e.to_string()))?;
 		if first {
 			first = false;
 		}
@@ -57,7 +57,7 @@ impl DateTimeSerde {
 
 	fn deserialize<'d, D: Deserializer<'d>>(d: D) -> Result<NaiveDateTime, D::Error> {
 		let s = String::deserialize(d)?;
-		str_to_datetime(&s).map_err(|e| Error::custom(format!("DateTime parse error, input: {}, error: {}", s, e)))
+		str_to_datetime(&s).map_err(|e| Error::custom(format!("DateTime parse error, input: {s}, error: {e}")))
 	}
 }
 
@@ -77,7 +77,7 @@ impl DateTimeSerdeOpt {
 		Ok(match Option::<String>::deserialize(d)? {
 			None => None,
 			Some(s) => {
-				Some(str_to_datetime(&s).map_err(|e| Error::custom(format!("DateTime parse error, input: {}, error: {}", s, e)))?)
+				Some(str_to_datetime(&s).map_err(|e| Error::custom(format!("DateTime parse error, input: {s}, error: {e}")))?)
 			}
 		})
 	}
