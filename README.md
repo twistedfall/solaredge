@@ -17,19 +17,15 @@ cargo add solaredge
 Or add to your Cargo.toml:
 ```toml
 [dependencies]
-solaredge = "0.5.2"
+solaredge = "0.5.3"
 ```
 
 ## Asynchronous SolarEdge API client for Rust
 
-Work in progress, only basic API is implemented so far. See `todo` markers in
-[client.rs](https://github.com/twistedfall/solaredge/blob/master/solaredge/src/client.rs) for
-the specific missing functions.
-
-Enables access the SolarEdge equipment [API](https://www.solaredge.com/sites/default/files/se_monitoring_api.pdf)
+Enables access to the SolarEdge equipment [API](https://www.solaredge.com/sites/default/files/se_monitoring_api.pdf)
 (solar panels, inverters, meters) with the nice typed Rust interface.
 
-The library requires an HTTP client, but is client-agnostic. You can use any client that implements
+The library requires an HTTP client but is client-agnostic. You can use any client that implements
 [`HttpClientAdapter`](https://docs.rs/http-adapter/*/http_adapter/trait.HttpClientAdapter.html) trait.
 Check [http-adapter-reqwest](https://crates.io/crates/http-adapter-reqwest) for an implementation based
 on [reqwest](https://crates.io/crates/reqwest).
