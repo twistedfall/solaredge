@@ -1,13 +1,21 @@
 # solaredge
 
-## Documentation
+[![Build Status](https://github.com/twistedfall/solaredge/actions/workflows/solaredge.yml/badge.svg)](https://github.com/twistedfall/solaredge/actions/workflows/solaredge.yml)
+[![Documentation](https://docs.rs/solaredge/badge.svg)](https://docs.rs/solaredge)
+[![Crates.io](https://img.shields.io/crates/v/solaredge)](https://crates.io/crates/solaredge)
+![Maintenance](https://img.shields.io/badge/maintenance-passively--maintained-yellowgreen.svg)
 
-See [full documentation](https://docs.rs/solaredge)
+[Support the project](https://github.com/sponsors/twistedfall) | [Documentation](https://docs.rs/solaredge)
+
 
 ## Usage
 
-Add this to your Cargo.toml:
+Run:
+```shell
+cargo add solaredge
 ```
+Or add to your Cargo.toml:
+```toml
 [dependencies]
 solaredge = "0.5.2"
 ```
@@ -43,4 +51,6 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-License: LGPL-3.0
+## License
+
+LGPL-3.0
