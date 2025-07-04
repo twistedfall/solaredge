@@ -8,7 +8,7 @@ repository = "https://github.com/twistedfall/solaredge"
 edition = "2024"
 rust-version = "1.85.0"
 license = "LGPL-3.0"
-exclude = ["/.github", "/.gitignore", "/tools", "/Cargo.lock", "release.toml", "rustfmt.toml", "README.tpl"]
+exclude = ["/.github", "/.gitignore", "/tools", "release.toml", "rustfmt.toml"]
 
 [badges]
 maintenance = { status = "passively-maintained" }
