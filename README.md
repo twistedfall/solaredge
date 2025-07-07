@@ -17,7 +17,7 @@ cargo add solaredge
 Or add to your Cargo.toml:
 ```toml
 [dependencies]
-solaredge = "0.5.3"
+solaredge = "0.5.4"
 ```
 
 ## Asynchronous SolarEdge API client for Rust
