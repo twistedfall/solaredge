@@ -14,7 +14,7 @@ pub struct Location {
 	pub country: String,
 	pub city: String,
 	pub address: String,
-	pub address2: String,
+	pub address2: Option<String>,
 	pub zip: String,
 	pub time_zone: String,
 	pub country_code: String,
@@ -26,7 +26,7 @@ pub struct Module {
 	pub manufacturer_name: String,
 	pub model_name: String,
 	pub maximum_power: f64,
-	pub temperature_coef: f64,
+	pub temperature_coef: Option<f64>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -57,8 +57,8 @@ pub struct Details {
 	pub status: SiteStatus,
 	/// site peak power
 	pub peak_power: f64,
-	#[serde(with = "DateTimeSerde")]
-	pub last_update_time: NaiveDateTime,
+	#[serde(default, with = "DateTimeSerdeOpt")]
+	pub last_update_time: Option<NaiveDateTime>,
 	pub currency: Option<String>,
 	/// site installation date
 	#[serde(with = "DateTimeSerde")]
@@ -66,7 +66,7 @@ pub struct Details {
 	/// permission to operate date
 	#[serde(with = "DateTimeSerdeOpt")]
 	pub pto_date: Option<NaiveDateTime>,
-	pub notes: String,
+	pub notes: Option<String>,
 	/// site type
 	#[serde(rename = "type")]
 	pub site_type: String,
@@ -180,14 +180,14 @@ pub struct EnergyBulkTop {
 pub struct LifetimeEnergy {
 	#[serde(with = "DateSerde")]
 	pub date: NaiveDate,
-	pub energy: f64,
+	pub energy: Option<f64>,
 	pub unit: EnergyUnit,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TimeframeEnergy {
-	pub energy: f64,
+	pub energy: Option<f64>,
 	pub unit: EnergyUnit,
 	pub measured_by: Option<Measurer>,
 	pub start_lifetime_energy: LifetimeEnergy,
