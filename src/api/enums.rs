@@ -43,6 +43,7 @@ pub enum SiteSortBy {
 pub enum SiteStatus {
 	Active,
 	Pending,
+	PendingCommunication,
 	Disabled,
 	All,
 }
@@ -52,6 +53,7 @@ impl Display for SiteStatus {
 		let s = match self {
 			SiteStatus::Active => "Active",
 			SiteStatus::Pending => "Pending",
+			SiteStatus::PendingCommunication => "PendingCommunication",
 			SiteStatus::Disabled => "Disabled",
 			SiteStatus::All => "All",
 		};
