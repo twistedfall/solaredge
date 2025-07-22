@@ -3,8 +3,8 @@ use serde::Deserialize;
 
 use super::List;
 use crate::api::enums::{
-	BatteryState, EnergyUnit, EquipmentCommunicationMethod, FilterSiteStatus, GasEmissionUnit, Measurer, MeterForm, MeterType,
-	PowerFlowElement, PowerFlowElementStatus, PowerUnit, SensorType, TimeUnit,
+	BatteryState, EnergyUnit, EquipmentCommunicationMethod, GasEmissionUnit, Measurer, MeterForm, MeterType, PowerFlowElement,
+	PowerFlowElementStatus, PowerUnit, SensorType, SiteStatus, TimeUnit,
 };
 use crate::api::{DateSerde, DateTimeSerde, DateTimeSerdeOpt};
 
@@ -54,7 +54,7 @@ pub struct Details {
 	/// the account this site belongs to
 	pub account_id: u64,
 	/// the site status
-	pub status: FilterSiteStatus,
+	pub status: SiteStatus,
 	/// site peak power
 	pub peak_power: f64,
 	#[serde(default, with = "DateTimeSerdeOpt")]

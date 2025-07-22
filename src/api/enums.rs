@@ -39,11 +39,10 @@ pub enum SiteSortBy {
 	CreationTime,
 }
 
-#[derive(Copy, Clone, Debug, Deserialize)]
+#[derive(Copy, Clone, Debug)]
 pub enum FilterSiteStatus {
 	Active,
 	Pending,
-	PendingCommunication,
 	Disabled,
 	All,
 }
@@ -53,12 +52,17 @@ impl Display for FilterSiteStatus {
 		let s = match self {
 			FilterSiteStatus::Active => "Active",
 			FilterSiteStatus::Pending => "Pending",
-			FilterSiteStatus::PendingCommunication => "PendingCommunication",
 			FilterSiteStatus::Disabled => "Disabled",
 			FilterSiteStatus::All => "All",
 		};
 		f.write_str(s)
 	}
+}
+
+#[derive(Copy, Clone, Debug, Deserialize)]
+pub enum SiteStatus {
+	Active,
+	PendingCommunication,
 }
 
 #[derive(Copy, Clone, Debug, Deserialize, Serialize)]
