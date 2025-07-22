@@ -34,5 +34,3 @@ pub use error::Error;
 pub mod api;
 pub mod client;
 mod error;
-#[cfg(test)]
-mod tests;

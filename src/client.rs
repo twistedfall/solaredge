@@ -15,10 +15,10 @@ use crate::response::{accounts, equipment, site, version};
 
 /// Client for accessing SolarEdge API
 ///
-/// To be able to use it you'll need to request the API key from the Admin panel of your SolarEdge
+/// To be able to use it, you'll need to request the API key from the Admin panel of your SolarEdge
 /// installation. Then create it like this:
 /// ```
-/// # // Dummy implementation for doctests only, do not use as reference, use crate `http-adapter-reqwest` instead
+/// # // Dummy implementation for doctests only, do not use as a reference, use crate `http-adapter-reqwest` instead
 /// # mod http_adapter_reqwest {
 /// #    #[derive(Default)]
 /// #    pub struct ReqwestAdapter;
@@ -41,7 +41,7 @@ impl<C: HttpClientAdapter> Client<C> {
 	///
 	/// # Example
 	/// ```
-	/// # // Dummy implementation for doctests only, do not use as reference, use `http-adapter-reqwest` crate instead
+	/// # // Dummy implementation for doctests only, do not use as a reference, use `http-adapter-reqwest` crate instead
 	/// # mod http_adapter_reqwest {
 	/// #    #[derive(Default)]
 	/// #    pub struct ReqwestAdapter;
@@ -64,7 +64,7 @@ impl<C: HttpClientAdapter> Client<C> {
 	///
 	/// # Example
 	/// ```
-	/// # // Dummy implementation for doctests only, do not use as reference, use `http-adapter-reqwest` crate instead
+	/// # // Dummy implementation for doctests only, do not use as a reference, use `http-adapter-reqwest` crate instead
 	/// # mod http_adapter_reqwest {
 	/// #    #[derive(Default)]
 	/// #    pub struct ReqwestAdapter;

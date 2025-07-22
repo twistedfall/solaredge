@@ -1,7 +1,7 @@
 use serde::Deserialize;
 
-use crate::response::site::Location;
 use crate::response::List;
+use crate::response::site::Location;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
