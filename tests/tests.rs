@@ -1,7 +1,7 @@
 use chrono::{NaiveDate, NaiveTime};
 use http_adapter_reqwest::ReqwestAdapter;
 use solaredge::{
-	Client, DateTimeRange, MetersDateTimeRange, SiteEnergy, SiteEnvBenefits, SitePowerDetails, SiteStatus, SiteStorageData,
+	Client, DateTimeRange, FilterSiteStatus, MetersDateTimeRange, SiteEnergy, SiteEnvBenefits, SitePowerDetails, SiteStorageData,
 	SiteTotalEnergy, SitesList, SortOrder, SystemUnits, TimeUnit,
 };
 
@@ -31,7 +31,7 @@ async fn it_works() {
 	let p = SitesList {
 		size: Some(32),
 		sort_order: Some(SortOrder::Ascending),
-		status: Some(&[SiteStatus::Active, SiteStatus::Pending]),
+		status: Some(&[FilterSiteStatus::Active, FilterSiteStatus::Pending]),
 		search_text: Some("bbb"),
 		..Default::default()
 	};

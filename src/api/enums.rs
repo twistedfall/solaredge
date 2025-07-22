@@ -40,7 +40,7 @@ pub enum SiteSortBy {
 }
 
 #[derive(Copy, Clone, Debug, Deserialize)]
-pub enum SiteStatus {
+pub enum FilterSiteStatus {
 	Active,
 	Pending,
 	PendingCommunication,
@@ -48,14 +48,14 @@ pub enum SiteStatus {
 	All,
 }
 
-impl Display for SiteStatus {
+impl Display for FilterSiteStatus {
 	fn fmt(&self, f: &mut Formatter) -> FmtResult {
 		let s = match self {
-			SiteStatus::Active => "Active",
-			SiteStatus::Pending => "Pending",
-			SiteStatus::PendingCommunication => "PendingCommunication",
-			SiteStatus::Disabled => "Disabled",
-			SiteStatus::All => "All",
+			FilterSiteStatus::Active => "Active",
+			FilterSiteStatus::Pending => "Pending",
+			FilterSiteStatus::PendingCommunication => "PendingCommunication",
+			FilterSiteStatus::Disabled => "Disabled",
+			FilterSiteStatus::All => "All",
 		};
 		f.write_str(s)
 	}

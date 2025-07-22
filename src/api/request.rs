@@ -1,7 +1,7 @@
 use chrono::{NaiveDate, NaiveDateTime};
 use serde::Serialize;
 
-use super::enums::{AccountSortBy, MeterType, SiteSortBy, SiteStatus, SortOrder, SystemUnits, TimeUnit};
+use super::enums::{AccountSortBy, FilterSiteStatus, MeterType, SiteSortBy, SortOrder, SystemUnits, TimeUnit};
 use super::{DateSerde, DateTimeSerde, serialize_comma_slice_opt};
 
 #[derive(Debug, Default, Serialize)]
@@ -40,7 +40,7 @@ pub struct SitesList<'r> {
 	///
 	/// Default value: `Active,Pending`
 	#[serde(serialize_with = "serialize_comma_slice_opt")]
-	pub status: Option<&'r [SiteStatus]>,
+	pub status: Option<&'r [FilterSiteStatus]>,
 }
 
 #[derive(Debug, Serialize)]

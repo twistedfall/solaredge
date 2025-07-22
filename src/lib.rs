@@ -10,7 +10,7 @@
 //!
 //! Sample usage with [http-adapter-reqwest](https://crates.io/crates/http-adapter-reqwest):
 //! ```
-//! use solaredge::{Client, SitesList, SortOrder, SiteStatus};
+//! use solaredge::{Client, SitesList, SortOrder, FilterSiteStatus};
 //! use http_adapter_reqwest::ReqwestAdapter;
 //!
 //! async fn run() -> Result<(), Box<dyn std::error::Error>> {
@@ -19,7 +19,7 @@
 //!    let mut p = SitesList::default();
 //!    p.size = Some(32);
 //!    p.sort_order = Some(SortOrder::Ascending);
-//!    p.status = Some(&[SiteStatus::Active, SiteStatus::Pending]);
+//!    p.status = Some(&[FilterSiteStatus::Active, FilterSiteStatus::Pending]);
 //!    let sites = client.sites_list(&p).await?;
 //!    Ok(())
 //! }
