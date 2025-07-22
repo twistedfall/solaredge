@@ -1,5 +1,3 @@
-use std::fmt::{Display, Formatter, Result as FmtResult};
-
 use serde::{Deserialize, Serialize};
 use serde_repr::Deserialize_repr;
 
@@ -39,24 +37,12 @@ pub enum SiteSortBy {
 	CreationTime,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Serialize)]
 pub enum FilterSiteStatus {
 	Active,
 	Pending,
 	Disabled,
 	All,
-}
-
-impl Display for FilterSiteStatus {
-	fn fmt(&self, f: &mut Formatter) -> FmtResult {
-		let s = match self {
-			FilterSiteStatus::Active => "Active",
-			FilterSiteStatus::Pending => "Pending",
-			FilterSiteStatus::Disabled => "Disabled",
-			FilterSiteStatus::All => "All",
-		};
-		f.write_str(s)
-	}
 }
 
 #[derive(Copy, Clone, Debug, Deserialize)]
@@ -93,19 +79,6 @@ pub enum MeterType {
 	FeedIn,
 	/// Import power from GRID meter
 	Purchased,
-}
-
-impl Display for MeterType {
-	fn fmt(&self, f: &mut Formatter) -> FmtResult {
-		let s = match self {
-			MeterType::Production => "Production",
-			MeterType::Consumption => "Consumption",
-			MeterType::SelfConsumption => "SelfConsumption",
-			MeterType::FeedIn => "FeedIn",
-			MeterType::Purchased => "Purchased",
-		};
-		f.write_str(s)
-	}
 }
 
 #[derive(Copy, Clone, Debug, Deserialize)]

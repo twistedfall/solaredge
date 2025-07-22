@@ -1,21 +1,21 @@
-use std::fmt::{Display, Write};
-
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime, ParseResult};
 use serde::de::Error as _;
+use serde::ser::Error as _;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde_variant::to_variant_name;
 
 pub mod enums;
 pub mod request;
 pub mod response;
 
-fn serialize_comma_slice<T: Display, S: Serializer>(slice: &[T], ser: S) -> Result<S::Ok, S::Error> {
+fn serialize_comma_slice<T: Serialize, S: Serializer>(slice: &[T], ser: S) -> Result<S::Ok, S::Error> {
 	let mut res = String::new();
 	let mut first = true;
 	for v in slice {
 		if !first {
 			res.push(',');
 		}
-		write!(&mut res, "{v}").map_err(|e| serde::ser::Error::custom(e.to_string()))?;
+		res.push_str(to_variant_name(v).map_err(|s| S::Error::custom(s.to_string()))?);
 		if first {
 			first = false;
 		}
@@ -23,7 +23,7 @@ fn serialize_comma_slice<T: Display, S: Serializer>(slice: &[T], ser: S) -> Resu
 	ser.serialize_str(&res)
 }
 
-fn serialize_comma_slice_opt<T: Display, S: Serializer>(slice: &Option<&[T]>, ser: S) -> Result<S::Ok, S::Error> {
+fn serialize_comma_slice_opt<T: Serialize, S: Serializer>(slice: &Option<&[T]>, ser: S) -> Result<S::Ok, S::Error> {
 	if let Some(slice) = slice {
 		serialize_comma_slice(slice, ser)
 	} else {
