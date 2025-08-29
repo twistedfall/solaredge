@@ -7,12 +7,19 @@ on:
     branches:
       - "*"
 jobs:
-  ci:
+  clippy:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo clippy --workspace --all-features --tests -- -D warnings
+
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --workspace --all-features
 
   msrv:
     runs-on: ubuntu-24.04

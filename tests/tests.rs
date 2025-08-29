@@ -6,6 +6,7 @@ use solaredge::{
 };
 
 #[tokio::test]
+#[ignore] // requires a real API key
 async fn it_works() {
 	env_logger::init();
 	let c = Client::<ReqwestAdapter>::new("");

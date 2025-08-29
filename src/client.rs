@@ -22,7 +22,7 @@ use crate::response::{accounts, equipment, site, version};
 /// # mod http_adapter_reqwest {
 /// #    #[derive(Default)]
 /// #    pub struct ReqwestAdapter;
-/// #    #[async_trait::async_trait(?Send)]
+/// #    #[async_trait::async_trait]
 /// #    impl http_adapter::HttpClientAdapter for ReqwestAdapter {
 /// #       type Error = String;
 /// #       async fn execute(&self, request: http_adapter::Request<Vec<u8>>) -> Result<http_adapter::Response<Vec<u8>>, Self::Error> { Ok(http_adapter::Response::new(vec![])) }
@@ -45,7 +45,7 @@ impl<C: HttpClientAdapter> Client<C> {
 	/// # mod http_adapter_reqwest {
 	/// #    #[derive(Default)]
 	/// #    pub struct ReqwestAdapter;
-	/// #    #[async_trait::async_trait(?Send)]
+	/// #    #[async_trait::async_trait]
 	/// #    impl http_adapter::HttpClientAdapter for ReqwestAdapter {
 	/// #       type Error = String;
 	/// #       async fn execute(&self, request: http_adapter::Request<Vec<u8>>) -> Result<http_adapter::Response<Vec<u8>>, Self::Error> { Ok(http_adapter::Response::new(vec![])) }
@@ -68,7 +68,7 @@ impl<C: HttpClientAdapter> Client<C> {
 	/// # mod http_adapter_reqwest {
 	/// #    #[derive(Default)]
 	/// #    pub struct ReqwestAdapter;
-	/// #    #[async_trait::async_trait(?Send)]
+	/// #    #[async_trait::async_trait]
 	/// #    impl http_adapter::HttpClientAdapter for ReqwestAdapter {
 	/// #       type Error = String;
 	/// #       async fn execute(&self, request: http_adapter::Request<Vec<u8>>) -> Result<http_adapter::Response<Vec<u8>>, Self::Error> { Ok(http_adapter::Response::new(vec![])) }
