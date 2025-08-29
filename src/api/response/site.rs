@@ -57,7 +57,7 @@ pub struct Details {
 	pub status: SiteStatus,
 	/// site peak power
 	pub peak_power: f64,
-	#[serde(default, with = "DateTimeSerdeOpt")]
+	#[serde(with = "DateTimeSerdeOpt")]
 	pub last_update_time: Option<NaiveDateTime>,
 	pub currency: Option<String>,
 	/// site installation date
@@ -495,11 +495,9 @@ pub struct Inverter {
 	/// CPU Firmware version e.g. 2.52.311
 	pub cpu_version: String,
 	/// DSP 1 Firmware version
-	#[serde(default)]
-	pub dsp1_version: String,
+	pub dsp1_version: Option<String>,
 	/// DSP 2 Firmware version
-	#[serde(default)]
-	pub dsp2_version: String,
+	pub dsp2_version: Option<String>,
 	/// the communication interface used to connect to server. E.g. Ethernet.
 	pub communication_method: EquipmentCommunicationMethod,
 	/// the equipment serial number e.g. 7F123456-00
@@ -515,11 +513,9 @@ pub struct Meter {
 	/// the inverter name e.g. "Feed In Meter"
 	pub name: String,
 	/// e.g. "WattNode"
-	#[serde(default)]
-	pub manufacturer: String,
+	pub manufacturer: Option<String>,
 	/// meter model number
-	#[serde(default)]
-	pub model: String,
+	pub model: Option<String>,
 	/// serial number (if applicable)
 	#[serde(rename = "SN")]
 	pub serial_number: Option<String>,
@@ -528,11 +524,10 @@ pub struct Meter {
 	/// FirmwareVersion (if applicable)
 	pub firmware_version: Option<String>,
 	/// Name of SolarEdge device the meter is connected to
-	#[serde(default)]
-	pub connected_to: String,
+	pub connected_to: Option<String>,
 	/// serial number of the inverter / gateway the meter is connected to
-	#[serde(rename = "connectedSolaredgeDeviceSN", default)]
-	pub connected_solaredge_device_sn: String,
+	#[serde(rename = "connectedSolaredgeDeviceSN")]
+	pub connected_solaredge_device_sn: Option<String>,
 	pub form: MeterForm,
 }
 
