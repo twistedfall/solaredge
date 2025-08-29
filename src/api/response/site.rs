@@ -495,8 +495,10 @@ pub struct Inverter {
 	/// CPU Firmware version e.g. 2.52.311
 	pub cpu_version: String,
 	/// DSP 1 Firmware version
+	#[serde(default)]
 	pub dsp1_version: String,
 	/// DSP 2 Firmware version
+	#[serde(default)]
 	pub dsp2_version: String,
 	/// the communication interface used to connect to server. E.g. Ethernet.
 	pub communication_method: EquipmentCommunicationMethod,
@@ -513,8 +515,10 @@ pub struct Meter {
 	/// the inverter name e.g. "Feed In Meter"
 	pub name: String,
 	/// e.g. "WattNode"
+	#[serde(default)]
 	pub manufacturer: String,
 	/// meter model number
+	#[serde(default)]
 	pub model: String,
 	/// serial number (if applicable)
 	#[serde(rename = "SN")]
@@ -524,9 +528,10 @@ pub struct Meter {
 	/// FirmwareVersion (if applicable)
 	pub firmware_version: Option<String>,
 	/// Name of SolarEdge device the meter is connected to
+	#[serde(default)]
 	pub connected_to: String,
 	/// serial number of the inverter / gateway the meter is connected to
-	#[serde(rename = "connectedSolaredgeDeviceSN")]
+	#[serde(rename = "connectedSolaredgeDeviceSN", default)]
 	pub connected_solaredge_device_sn: String,
 	pub form: MeterForm,
 }
