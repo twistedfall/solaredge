@@ -41,7 +41,7 @@ pub struct Uris {
 #[serde(rename_all = "camelCase")]
 pub struct PublicSettings {
 	pub name: Option<String>,
-	pub is_public: bool,
+	pub is_public: Option<bool>,
 }
 
 #[derive(Debug, Deserialize)]
