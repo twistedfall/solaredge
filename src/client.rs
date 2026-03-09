@@ -485,11 +485,9 @@ impl<C: HttpClientAdapter> Client<C> {
 		if !query.is_empty() {
 			url.set_query(Some(&query));
 		}
-		trace!("{url_path}: url: {url}");
-		let req = Request::get(url.to_string())
-			.header("X-API-Key", &self.api_key)
-			.body(vec![])
-			.expect("Static request");
+		trace!("{url_path}: url (without api_key): {url}");
+		url.query_pairs_mut().append_pair("api_key", &self.api_key);
+		let req = Request::get(url.to_string()).body(vec![]).expect("Static request");
 		let out = self
 			.client
 			.execute(req)
