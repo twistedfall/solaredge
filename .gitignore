@@ -1,3 +1,5 @@
 /target
 Cargo.lock
 /README.tpl
+/logs
+/*.pdf
