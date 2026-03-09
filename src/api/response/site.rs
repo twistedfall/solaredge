@@ -619,31 +619,3 @@ pub struct Meters {
 pub struct MetersTop {
 	pub meter_energy_details: Meters,
 }
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// Measurements of the sensors are numerical values in metric system
-pub struct SensorTelemetry {
-	/// timestamp of the telemetries
-	#[serde(with = "DateTimeSerde")]
-	pub date: NaiveDateTime,
-	pub ambient_temperature: Option<f64>,
-	pub module_temperature: Option<f64>,
-	pub wind_speed: Option<f64>,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SensorData {
-	/// name of the gateway the sensor is connected to
-	pub connected_to: String,
-	/// the number of telemetries
-	pub count: usize,
-	pub telemetries: Vec<SensorTelemetry>,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SensorDataTop {
-	pub site_sensors: List<SensorData>,
-}

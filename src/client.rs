@@ -11,7 +11,7 @@ use url::Url;
 
 use crate::Error;
 use crate::api::request;
-use crate::response::{accounts, equipment, site, version};
+use crate::response::{equipment, site};
 
 /// Client for accessing SolarEdge API
 ///
@@ -82,22 +82,6 @@ impl<C: HttpClientAdapter> Client<C> {
 			base_url: Url::parse("https://monitoringapi.solaredge.com").expect("Static URL parsing failed"),
 			api_key: api_key.into(),
 		}
-	}
-
-	/// Return the most updated version number in <major.minor.revision> format.
-	pub async fn version_current(&self) -> Result<String, Error<C::Error>> {
-		self
-			.fetch_json::<version::CurrentTop>("/version/current.json", ())
-			.await
-			.map(|res| res.version.release)
-	}
-
-	/// Return a list of supported version numbers in <major.minor.revision> format.
-	pub async fn version_supported(&self) -> Result<Vec<version::Spec>, Error<C::Error>> {
-		self
-			.fetch_json::<version::SupportedTop>("/version/supported.json", ())
-			.await
-			.map(|res| res.supported)
 	}
 
 	/// Returns a list of sites related to the given token, which is the account api_key
@@ -277,7 +261,7 @@ impl<C: HttpClientAdapter> Client<C> {
 	///
 	/// Usage limitation: This API is limited to:
 	/// * A year when using daily resolution (timeUnit=DAY)
-	/// * A month when using hourly resolution of higher (timeUnit=QUARTER_OF_AN_HOUR or timeUnit=HOUR)
+	/// * A month when using hourly resolution or higher (timeUnit=QUARTER_OF_AN_HOUR or timeUnit=HOUR)
 	/// * Lower resolutions (weekly, monthly, yearly) have no period limitation
 	///
 	/// In case the requested resolution is not allowed for the requested period, error 403 with proper description will
@@ -326,23 +310,6 @@ impl<C: HttpClientAdapter> Client<C> {
 			.map(|res| res.storage_data.list)
 	}
 
-	/// Display the site image as uploaded by the user.
-	///
-	/// Performance: The image element returns with a hash element, which is consistent as long as the image is not
-	/// changed. When executing the Site Image API while using the hash element, the server matches the image hash and
-	/// the hash sent in the URL. If a match is found, the API returns an HTTP 304 code. In case the image hash that
-	/// appears in the URL is different than the one stored in the server, the image will be downloaded. When using the
-	/// maxWidth and MaxHeight parameters, the hash element will be ignored.
-	///
-	/// Image sizes: By default, the API returns the same image that was uploaded to the monitoring portal. If an image
-	/// in a different scale is required, the API supports it via the maxWidth and maxHeight parameters. The system will
-	/// scale the image while keeping the aspect ratio of the original image, so the returned image will be smaller.
-	pub async fn site_image(&self, site_id: u64, params: &request::SiteImage) -> Result<Vec<u8>, Error<C::Error>> {
-		self
-			.fetch_image(&format!("/site/{site_id}/siteImage/image.jpg"), params)
-			.await
-	}
-
 	/// Returns all environmental benefits based on site energy production: CO2 emissions saved, equivalent trees
 	/// planted, and light bulbs powered for a day.
 	pub async fn site_env_benefits(
@@ -354,14 +321,6 @@ impl<C: HttpClientAdapter> Client<C> {
 			.fetch_json::<site::EnvBenefitsTop>(&format!("/site/{site_id}/envBenefits.json"), params)
 			.await
 			.map(|res| res.env_benefits)
-	}
-
-	/// Return the site installer logo image as uploaded by the user. If such an image does not exist, the account
-	/// installer logo is returned.
-	pub async fn site_installer_image(&self, site_id: u64) -> Result<Vec<u8>, Error<C::Error>> {
-		self
-			.fetch_image(&format!("/site/{site_id}/installerImage/image.jpg"), ())
-			.await
 	}
 
 	/// Return the inventory of SolarEdge equipment in the site, including inverters/SMIs, batteries, meters, gateways
@@ -385,36 +344,12 @@ impl<C: HttpClientAdapter> Client<C> {
 			.map(|res| res.meter_energy_details)
 	}
 
-	/// Returns the data of all the sensors in the site, by the gateway they are connected to.
-	///
-	/// Usage limitation: This API is limited to one-week period. This means that the period between endDate and
-	/// startDate should not exceed one week. If the period is longer, the system will generate error 403 with a
-	/// description.
-	pub async fn site_sensor_data(
-		&self,
-		site_id: u64,
-		params: &request::SensorsDateTimeRange,
-	) -> Result<Vec<site::SensorData>, Error<C::Error>> {
-		self
-			.fetch_json::<site::SensorDataTop>(&format!("/site/{site_id}/sensors.json"), params)
-			.await
-			.map(|res| res.site_sensors.list)
-	}
-
 	/// Return a list of inverters/SMIs in the specific site.
 	pub async fn equipment_list(&self, site_id: u64) -> Result<Vec<equipment::Reporter>, Error<C::Error>> {
 		self
 			.fetch_json::<equipment::ListTop>(&format!("/equipment/{site_id}/list.json"), ())
 			.await
 			.map(|res| res.reporters.list)
-	}
-
-	/// Returns for each meter on site its lifetime energy reading, metadata and the device to which it’s connected to.
-	pub async fn equipment_sensors(&self, site_id: u64) -> Result<Vec<equipment::SensorSummary>, Error<C::Error>> {
-		self
-			.fetch_json::<equipment::SensorsTop>(&format!("/equipment/{site_id}/sensors.json"), ())
-			.await
-			.map(|res| res.site_sensors.list)
 	}
 
 	/// Return specific inverter data for a given timeframe.
@@ -433,27 +368,6 @@ impl<C: HttpClientAdapter> Client<C> {
 			.fetch_json::<equipment::DataTop>(&format!("/equipment/{site_id}/{serial_number}/data.json"), params)
 			.await
 			.map(|res| res.data.list)
-	}
-
-	/// Description: Returns a list of equipment component replacements ordered by date. This method is applicable to
-	/// inverters, optimizers, batteries and gateways.
-	pub async fn equipment_changelog(
-		&self,
-		site_id: u64,
-		serial_number: &str,
-	) -> Result<Vec<equipment::EquipmentChangelog>, Error<C::Error>> {
-		let serial_number = utf8_percent_encode(serial_number, NON_ALPHANUMERIC);
-		self
-			.fetch_json::<equipment::EquipmentChangelogTop>(&format!("/equipment/{site_id}/{serial_number}/changeLog.json"), ())
-			.await
-			.map(|res| res.changelog.list)
-	}
-
-	pub async fn accounts_list(&self, params: &request::AccountsList<'_>) -> Result<Vec<accounts::Account>, Error<C::Error>> {
-		self
-			.fetch_json::<accounts::ListTop>("/accounts/list.json", params)
-			.await
-			.map(|res| res.accounts.list)
 	}
 
 	fn join_site_ids(ids: &[u64]) -> String {
@@ -500,10 +414,6 @@ impl<C: HttpClientAdapter> Client<C> {
 
 	async fn fetch_json<R: DeserializeOwned>(&self, url_path: &str, params: impl Serialize) -> Result<R, Error<C::Error>> {
 		Ok(serde_json::from_slice(self.perform_request(url_path, params).await?.body())?)
-	}
-
-	async fn fetch_image(&self, url_path: &str, params: impl Serialize) -> Result<Vec<u8>, Error<C::Error>> {
-		Ok(self.perform_request(url_path, params).await?.into_body())
 	}
 }
 

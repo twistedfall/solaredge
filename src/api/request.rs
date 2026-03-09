@@ -1,7 +1,7 @@
 use chrono::{NaiveDate, NaiveDateTime};
 use serde::Serialize;
 
-use super::enums::{AccountSortBy, FilterSiteStatus, MeterType, SiteSortBy, SortOrder, SystemUnits, TimeUnit};
+use super::enums::{FilterSiteStatus, MeterType, SiteSortBy, SortOrder, SystemUnits, TimeUnit};
 use super::{DateSerde, DateTimeSerde, serialize_comma_slice_opt};
 
 #[derive(Debug, Default, Serialize)]
@@ -27,7 +27,6 @@ pub struct SitesList<'r> {
 	/// * Address
 	/// * City
 	/// * Zip code
-	/// * Full address
 	/// * Country
 	pub search_text: Option<&'r str>,
 	/// A sorting option for this site list, based on one of its properties.
@@ -114,17 +113,6 @@ pub struct MetersDateTimeRange<'r> {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct SensorsDateTimeRange {
-	/// The start (date + time) to get sensor data
-	#[serde(with = "DateTimeSerde")]
-	pub start_date: NaiveDateTime,
-	/// The end (date + time) to get sensor data
-	#[serde(with = "DateTimeSerde")]
-	pub end_date: NaiveDateTime,
-}
-
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct SiteStorageData<'r> {
 	/// Storage power measured start time
 	#[serde(with = "DateTimeSerde")]
@@ -140,48 +128,9 @@ pub struct SiteStorageData<'r> {
 
 #[derive(Debug, Default, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct SiteImage {
-	/// The maximum width to scale this image
-	pub max_width: Option<u16>,
-	/// The maximum height to scale this image
-	pub max_height: Option<u16>,
-	/// The image hash
-	pub hash: Option<u32>,
-}
-
-#[derive(Debug, Default, Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct SiteEnvBenefits {
 	/// The system units used when returning gas emission savings.
 	///
 	/// If systemUnits are not specified, the logged in user system units are used.
 	pub system_units: Option<SystemUnits>,
-}
-
-#[derive(Debug, Default, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct AccountsList<'r> {
-	/// The maximum number of accounts returned by this call. If you have more than 100 sites, just request another 100 sites with
-	/// startIndex=100. This will fetch sites 100-199.
-	///
-	/// Default value: `100`
-	pub size: Option<u8>,
-	/// The first account index to be returned in the results
-	///
-	/// Default value: `0`
-	pub start_index: Option<u8>,
-	/// Search text for this account. Searchable properties:
-	/// * Name – the account name
-	/// * Notes
-	/// * Email – contact person email
-	/// * Country
-	/// * State
-	/// * City
-	/// * Zip
-	/// * Full address
-	pub search_text: Option<&'r str>,
-	/// A sorting option for this account list, based on one of its properties.
-	pub sort_property: Option<AccountSortBy>,
-	///  Sort order for the sort property.
-	pub sort_order: Option<SortOrder>,
 }

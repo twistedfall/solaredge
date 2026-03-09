@@ -37,7 +37,6 @@ use http_adapter_reqwest::ReqwestAdapter;
 
 async fn run() -> Result<(), Box<dyn std::error::Error>> {
    let client = Client::<ReqwestAdapter>::new("API_KEY");
-   let version = client.version_current().await?;
    let mut p = SitesList::default();
    p.size = Some(32);
    p.sort_order = Some(SortOrder::Ascending);

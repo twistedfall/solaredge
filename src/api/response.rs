@@ -1,9 +1,7 @@
 use serde::Deserialize;
 
-pub mod accounts;
 pub mod equipment;
 pub mod site;
-pub mod version;
 
 #[derive(Debug, Deserialize)]
 pub struct List<T> {

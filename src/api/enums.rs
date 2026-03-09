@@ -33,8 +33,6 @@ pub enum SiteSortBy {
 	Amount,
 	/// sort by alert severity
 	MaxSeverity,
-	/// sort by site creation time
-	CreationTime,
 }
 
 #[derive(Copy, Clone, Debug, Serialize)]
@@ -202,9 +200,11 @@ pub enum BatteryState {
 }
 
 #[derive(Copy, Clone, Debug, Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "UPPERCASE")]
 pub enum GasEmissionUnit {
+	#[serde(alias = "kg", alias = "Kg")]
 	Kg,
+	#[serde(alias = "lb", alias = "Lb")]
 	Lb,
 }
 
@@ -223,33 +223,4 @@ pub enum SensorType {
 	Temperature,
 	#[serde(untagged)]
 	Other(String),
-}
-
-#[derive(Clone, Debug, Deserialize)]
-pub enum SensorMeasurement {
-	SensorGlobalHorizontalIrradiance,
-	SensorDiffusedIrradiance,
-	SensorAmbientTemperature,
-	#[serde(untagged)]
-	Other(String),
-}
-
-#[derive(Copy, Clone, Debug, Serialize)]
-pub enum AccountSortBy {
-	/// sort by account name
-	Name,
-	/// sort by account country
-	Country,
-	/// sort by account city
-	City,
-	/// sort by account address
-	Address,
-	/// sort by account zip code
-	Zip,
-	/// sort by account fax number
-	Fax,
-	/// sort by account phone
-	Phone,
-	/// sort by account notes
-	Notes,
 }

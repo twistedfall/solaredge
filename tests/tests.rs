@@ -1,14 +1,40 @@
 use chrono::{NaiveDate, NaiveTime};
 use http_adapter_reqwest::ReqwestAdapter;
+use serde_json::json;
+use solaredge::response::equipment::LData;
 use solaredge::{
-	Client, DateTimeRange, FilterSiteStatus, MetersDateTimeRange, SiteEnergy, SiteEnvBenefits, SitePowerDetails, SiteStorageData,
-	SiteTotalEnergy, SitesList, SortOrder, SystemUnits, TimeUnit,
+	Client, DateTimeRange, GasEmissionUnit, MetersDateTimeRange, SiteEnergy, SiteEnvBenefits, SitePowerDetails, SiteStorageData,
+	SiteTotalEnergy, SystemUnits, TimeUnit,
 };
+
+#[test]
+fn gas_emission_units_accept_known_spellings() {
+	for unit in ["kg", "Kg", "KG"] {
+		let parsed: GasEmissionUnit = serde_json::from_value(json!(unit)).unwrap();
+		assert!(matches!(parsed, GasEmissionUnit::Kg), "{unit}");
+	}
+	for unit in ["lb", "Lb", "LB"] {
+		let parsed: GasEmissionUnit = serde_json::from_value(json!(unit)).unwrap();
+		assert!(matches!(parsed, GasEmissionUnit::Lb), "{unit}");
+	}
+}
+
+#[test]
+fn phase_telemetry_accepts_missing_active_power() {
+	let mut phase = json!({ "acCurrent": 8.5, "acVoltage": 230.0, "acFrequency": 50.0 });
+	let without_active_power: LData = serde_json::from_value(phase.clone()).unwrap();
+	assert_eq!(without_active_power.active_power, None);
+
+	phase["activePower"] = json!(1954.0);
+	let with_active_power: LData = serde_json::from_value(phase).unwrap();
+	assert_eq!(with_active_power.active_power, Some(1954.0));
+}
 
 #[tokio::test]
 #[ignore] // requires a real API key
 async fn it_works() {
 	env_logger::init();
+	let site_id = 0;
 	let c = Client::<ReqwestAdapter>::new("");
 	let start_datetime = NaiveDate::from_ymd_opt(2024, 8, 10)
 		.unwrap()
@@ -16,29 +42,18 @@ async fn it_works() {
 	let end_datetime = NaiveDate::from_ymd_opt(2024, 8, 12)
 		.unwrap()
 		.and_time(NaiveTime::from_hms_opt(8, 12, 14).unwrap());
-	let version = c.version_current().await.unwrap();
-	dbg!(&version);
-	let version_supported = c.version_supported().await.unwrap();
-	dbg!(&version_supported);
-	// let p = AccountsList {
-	// 	size: None,
-	// 	start_index: None,
-	// 	search_text: None,
-	// 	sort_property: None,
-	// 	sort_order: None,
+	// 403 since March 2026
+	// let p = SitesList {
+	// 	size: Some(32),
+	// 	sort_order: Some(SortOrder::Ascending),
+	// 	status: Some(&[FilterSiteStatus::Active, FilterSiteStatus::Pending]),
+	// 	search_text: Some("bbb"),
+	// 	..Default::default()
 	// };
-	// let accounts = c.accounts_list(&p).await.unwrap();
-	// dbg!(&accounts);
-	let p = SitesList {
-		size: Some(32),
-		sort_order: Some(SortOrder::Ascending),
-		status: Some(&[FilterSiteStatus::Active, FilterSiteStatus::Pending]),
-		search_text: Some("bbb"),
-		..Default::default()
-	};
-	let sites = c.sites_list(&p).await.unwrap();
-	dbg!(&sites);
-	let mut site_ids = sites.iter().map(|s| s.id).collect::<Vec<_>>();
+	// let sites = c.sites_list(&p).await.unwrap();
+	// dbg!(&sites);
+	// let mut site_ids = sites.iter().map(|s| s.id).collect::<Vec<_>>();
+	let mut site_ids = vec![site_id];
 	if site_ids.len() == 1 {
 		site_ids.push(site_ids.first().copied().unwrap_or_default());
 	}
@@ -68,8 +83,8 @@ async fn it_works() {
 	dbg!(&power_bulk);
 	let overview_bulk = c.site_overview_bulk(&site_ids).await.unwrap();
 	dbg!(&overview_bulk);
-	for site in sites {
-		let site = c.site_details(site.id).await.unwrap();
+	for site_id in site_ids {
+		let site = c.site_details(site_id).await.unwrap();
 		dbg!(&site);
 		let data = c.site_data_period(site.id).await.unwrap();
 		dbg!(&data);
@@ -105,21 +120,11 @@ async fn it_works() {
 		};
 		let storage_data = c.site_storage_data(site.id, &p).await.unwrap();
 		dbg!(&storage_data);
-		// let p = SiteImage {
-		// 	max_width: None,
-		// 	max_height: None,
-		// 	hash: None,
-		// };
-		// let site_image = c.site_image(site.id, &p).await.unwrap();
-		// dbg!(&site_image);
-		// fs::write("/tmp/123.jpg", &site_image).unwrap();
 		let p = SiteEnvBenefits {
 			system_units: Some(SystemUnits::Imperial),
 		};
 		let env_benefits = c.site_env_benefits(site.id, &p).await.unwrap();
 		dbg!(&env_benefits);
-		let installer_image = c.site_installer_image(site.id).await.unwrap();
-		dbg!(&installer_image.len());
 		let p = MetersDateTimeRange {
 			start_time: start_datetime,
 			end_time: end_datetime,
@@ -128,16 +133,8 @@ async fn it_works() {
 		};
 		let meters = c.site_meters(site.id, &p).await.unwrap();
 		dbg!(&meters);
-		// let p = SensorsDateTimeRange {
-		// 	start_date: start_datetime,
-		// 	end_date: end_datetime,
-		// };
-		// // let sensors = c.site_sensors(site.id, &p).await.unwrap();
-		// dbg!(&sensors);
 		let equipment = c.equipment_list(site.id).await.unwrap();
 		dbg!(&equipment);
-		let sensors = c.equipment_sensors(site.id).await.unwrap();
-		dbg!(&sensors);
 		let inventory = c.site_inventory(site.id).await.unwrap();
 		dbg!(&inventory);
 		for inv in inventory.inverters {
@@ -147,8 +144,6 @@ async fn it_works() {
 			};
 			let equipment_data = c.equipment_data(site.id, &inv.serial_number, &p).await.unwrap();
 			dbg!(&equipment_data);
-			let equipment_changelog = c.equipment_changelog(site.id, &inv.serial_number).await.unwrap();
-			dbg!(&equipment_changelog);
 		}
 	}
 }

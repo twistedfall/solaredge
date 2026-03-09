@@ -1,35 +1,9 @@
-use chrono::{NaiveDate, NaiveDateTime};
+use chrono::NaiveDateTime;
 use serde::Deserialize;
 
 use super::List;
-use crate::api::{DateSerde, DateTimeSerde};
-use crate::{InverterMode, OperationMode, SensorMeasurement, SensorType};
-
-#[derive(Debug, Deserialize)]
-pub struct Sensor {
-	/// the name of the sensor
-	pub name: String,
-	/// what the sensor measures
-	pub measurement: SensorMeasurement,
-	/// the sensor type
-	#[serde(rename = "type")]
-	pub typ: SensorType,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SensorSummary {
-	/// name of the gateway the sensor is connected to
-	pub connected_to: String,
-	pub count: usize,
-	pub sensors: Vec<Sensor>,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct SensorsTop {
-	#[serde(rename = "SiteSensors")]
-	pub site_sensors: List<SensorSummary>,
-}
+use crate::api::DateTimeSerde;
+use crate::{InverterMode, OperationMode};
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -57,13 +31,13 @@ pub struct LData {
 	pub ac_current: f64,
 	pub ac_voltage: f64,
 	pub ac_frequency: f64,
-	/// VA
-	pub apparent_power: f64,
 	/// Supported starting communication board version 2.474, VA
-	pub active_power: f64,
+	pub apparent_power: Option<f64>,
+	/// Supported starting communication board version 2.474, W
+	pub active_power: Option<f64>,
 	/// Supported starting communication board version 2.474, VAR
-	pub reactive_power: f64,
-	pub cos_phi: f64,
+	pub reactive_power: Option<f64>,
+	pub cos_phi: Option<f64>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -103,22 +77,4 @@ pub struct Telemetry {
 #[derive(Debug, Deserialize)]
 pub struct DataTop {
 	pub data: List<Telemetry>,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct EquipmentChangelog {
-	/// equipment short serial number
-	pub serial_number: String,
-	/// inverter/battery/optimizer/gateway model
-	pub part_number: String,
-	/// date of replacement of that equipment component
-	#[serde(with = "DateSerde")]
-	pub date: NaiveDate,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct EquipmentChangelogTop {
-	#[serde(rename = "ChangeLog")]
-	pub changelog: List<EquipmentChangelog>,
 }
