@@ -79,7 +79,7 @@ pub struct Details {
 	pub alert_severity: Option<String>,
 	pub uris: Uris,
 	/// includes if this site is public and its public name
-	pub public_settings: PublicSettings,
+	pub public_settings: Option<PublicSettings>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -270,8 +270,8 @@ pub struct PowerData {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Overview {
-	#[serde(with = "DateTimeSerde")]
-	pub last_update_time: NaiveDateTime,
+	#[serde(with = "DateTimeSerdeOpt")]
+	pub last_update_time: Option<NaiveDateTime>,
 	#[serde(rename = "lifeTimeData")]
 	pub lifetime_data: LifetimeData,
 	pub last_year_data: EnergyData,
