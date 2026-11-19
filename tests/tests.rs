@@ -1,11 +1,46 @@
-use chrono::{NaiveDate, NaiveTime};
 use http_adapter_reqwest::ReqwestAdapter;
+use jiff::civil::date;
 use serde_json::json;
 use solaredge::response::equipment::LData;
+use solaredge::response::site::{DataPeriod, DateValue, LifetimeEnergy};
 use solaredge::{
 	Client, DateTimeRange, GasEmissionUnit, MetersDateTimeRange, SiteEnergy, SiteEnvBenefits, SitePowerDetails, SiteStorageData,
 	SiteTotalEnergy, SystemUnits, TimeUnit,
 };
+
+#[test]
+fn request_dates_use_solaredge_formats() {
+	let range = DateTimeRange {
+		start_time: date(2024, 8, 10).at(10, 24, 19, 123_000_000),
+		end_time: date(2024, 8, 12).at(8, 12, 14, 0),
+	};
+	assert_eq!(
+		serde_urlencoded::to_string(&range).unwrap(),
+		"startTime=2024-08-10+10%3A24%3A19&endTime=2024-08-12+08%3A12%3A14",
+	);
+
+	let energy = SiteTotalEnergy {
+		start_date: range.start_time.date(),
+		end_date: range.end_time.date(),
+	};
+	assert_eq!(
+		serde_urlencoded::to_string(&energy).unwrap(),
+		"startDate=2024-08-10&endDate=2024-08-12",
+	);
+}
+
+#[test]
+fn response_dates_use_solaredge_formats() {
+	let reading: DateValue = serde_json::from_value(json!({ "date": "2024-08-10 10:24:19", "value": 1.0 })).unwrap();
+	assert_eq!(reading.date, date(2024, 8, 10).at(10, 24, 19, 0));
+
+	let period: DataPeriod = serde_json::from_value(json!({ "startDate": "2024-08-10", "endDate": null })).unwrap();
+	assert_eq!(period.start_date, Some(date(2024, 8, 10).at(0, 0, 0, 0)));
+	assert_eq!(period.end_date, None);
+
+	let energy: LifetimeEnergy = serde_json::from_value(json!({ "date": "2024-08-12", "energy": 1.0, "unit": "Wh" })).unwrap();
+	assert_eq!(energy.date, date(2024, 8, 12));
+}
 
 #[test]
 fn gas_emission_units_accept_known_spellings() {
@@ -36,12 +71,8 @@ async fn it_works() {
 	env_logger::init();
 	let site_id = 0;
 	let c = Client::<ReqwestAdapter>::new("");
-	let start_datetime = NaiveDate::from_ymd_opt(2024, 8, 10)
-		.unwrap()
-		.and_time(NaiveTime::from_hms_opt(10, 24, 19).unwrap());
-	let end_datetime = NaiveDate::from_ymd_opt(2024, 8, 12)
-		.unwrap()
-		.and_time(NaiveTime::from_hms_opt(8, 12, 14).unwrap());
+	let start_datetime = date(2024, 8, 10).at(10, 24, 19, 0);
+	let end_datetime = date(2024, 8, 12).at(8, 12, 14, 0);
 	// 403 since March 2026
 	// let p = SitesList {
 	// 	size: Some(32),

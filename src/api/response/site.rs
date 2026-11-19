@@ -1,4 +1,4 @@
-use chrono::{NaiveDate, NaiveDateTime};
+use jiff::civil::{Date, DateTime};
 use serde::Deserialize;
 
 use super::List;
@@ -58,14 +58,14 @@ pub struct Details {
 	/// site peak power
 	pub peak_power: f64,
 	#[serde(with = "DateTimeSerdeOpt")]
-	pub last_update_time: Option<NaiveDateTime>,
+	pub last_update_time: Option<DateTime>,
 	pub currency: Option<String>,
 	/// site installation date
 	#[serde(with = "DateTimeSerde")]
-	pub installation_date: NaiveDateTime,
+	pub installation_date: DateTime,
 	/// permission to operate date
 	#[serde(with = "DateTimeSerdeOpt")]
-	pub pto_date: Option<NaiveDateTime>,
+	pub pto_date: Option<DateTime>,
 	pub notes: Option<String>,
 	/// site type
 	#[serde(rename = "type")]
@@ -97,10 +97,10 @@ pub struct DetailsTop {
 pub struct DataPeriod {
 	/// In case the site is not transmitting, the value is `None`
 	#[serde(with = "DateTimeSerdeOpt")]
-	pub start_date: Option<NaiveDateTime>,
+	pub start_date: Option<DateTime>,
 	/// In case the site is not transmitting, the value is `None`
 	#[serde(with = "DateTimeSerdeOpt")]
-	pub end_date: Option<NaiveDateTime>,
+	pub end_date: Option<DateTime>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -127,7 +127,7 @@ pub struct DataPeriodBulkTop {
 pub struct DateValue {
 	/// The date is calculated based on the time zone of the site.
 	#[serde(with = "DateTimeSerde")]
-	pub date: NaiveDateTime,
+	pub date: DateTime,
 	/// `None` means there is no data for that time.
 	pub value: Option<f64>,
 }
@@ -179,7 +179,7 @@ pub struct EnergyBulkTop {
 #[serde(rename_all = "camelCase")]
 pub struct LifetimeEnergy {
 	#[serde(with = "DateSerde")]
-	pub date: NaiveDate,
+	pub date: Date,
 	pub energy: Option<f64>,
 	pub unit: EnergyUnit,
 }
@@ -271,7 +271,7 @@ pub struct PowerData {
 #[serde(rename_all = "camelCase")]
 pub struct Overview {
 	#[serde(with = "DateTimeSerde")]
-	pub last_update_time: NaiveDateTime,
+	pub last_update_time: DateTime,
 	#[serde(rename = "lifeTimeData")]
 	pub lifetime_data: LifetimeData,
 	pub last_year_data: EnergyData,
@@ -413,7 +413,7 @@ pub struct CurrentPowerFlowTop {
 pub struct BatteryTelemetry {
 	/// Telemetry timestamp
 	#[serde(rename = "timeStamp", with = "DateTimeSerde")]
-	pub timestamp: NaiveDateTime,
+	pub timestamp: DateTime,
 	/// Positive power indicates the battery is charging, negative is discharging.
 	pub power: i32,
 	pub battery_state: BatteryState,

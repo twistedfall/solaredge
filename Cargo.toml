@@ -16,8 +16,8 @@ exclude = ["/.github", "/tools", ".gitignore", "release.toml", "rustfmt.toml"]
 maintenance = { status = "passively-maintained" }
 
 [dependencies]
-chrono = { version = "0.4", default-features = false, features = ["alloc"] }
 http-adapter = "0.3"
+jiff = { version = "1", default-features = false }
 log = "0.4"
 percent-encoding = { version = "2", default-features = false }
 serde = { version = "1", features = ["derive"] }

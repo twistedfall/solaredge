@@ -1,4 +1,4 @@
-use chrono::{NaiveDate, NaiveDateTime};
+use jiff::civil::{Date, DateTime};
 use serde::Serialize;
 
 use super::enums::{FilterSiteStatus, MeterType, SiteSortBy, SortOrder, SystemUnits, TimeUnit};
@@ -47,10 +47,10 @@ pub struct SitesList<'r> {
 pub struct SiteEnergy {
 	/// The start date to return energy measurement
 	#[serde(with = "DateSerde")]
-	pub start_date: NaiveDate,
+	pub start_date: Date,
 	/// The end date return energy measurement
 	#[serde(with = "DateSerde")]
-	pub end_date: NaiveDate,
+	pub end_date: Date,
 	/// Aggregation granularity.
 	///
 	/// Default value: `DAY`
@@ -62,10 +62,10 @@ pub struct SiteEnergy {
 pub struct SiteTotalEnergy {
 	/// The start date to calculate energy generation
 	#[serde(with = "DateSerde")]
-	pub start_date: NaiveDate,
+	pub start_date: Date,
 	/// The end date to calculate energy generation
 	#[serde(with = "DateSerde")]
-	pub end_date: NaiveDate,
+	pub end_date: Date,
 }
 
 #[derive(Debug, Serialize)]
@@ -73,10 +73,10 @@ pub struct SiteTotalEnergy {
 pub struct DateTimeRange {
 	/// The start (date + time) to get power measurements
 	#[serde(with = "DateTimeSerde")]
-	pub start_time: NaiveDateTime,
+	pub start_time: DateTime,
 	/// The end (date + time) to get power measurements
 	#[serde(with = "DateTimeSerde")]
-	pub end_time: NaiveDateTime,
+	pub end_time: DateTime,
 }
 
 #[derive(Debug, Serialize)]
@@ -84,10 +84,10 @@ pub struct DateTimeRange {
 pub struct SitePowerDetails<'r> {
 	/// The power measured start time
 	#[serde(with = "DateTimeSerde")]
-	pub start_time: NaiveDateTime,
+	pub start_time: DateTime,
 	/// The power measured end time
 	#[serde(with = "DateTimeSerde")]
-	pub end_time: NaiveDateTime,
+	pub end_time: DateTime,
 	/// Select specific meters only. If this value is omitted, all meter readings are returned.
 	#[serde(serialize_with = "serialize_comma_slice_opt")]
 	pub meters: Option<&'r [MeterType]>,
@@ -98,10 +98,10 @@ pub struct SitePowerDetails<'r> {
 pub struct MetersDateTimeRange<'r> {
 	/// The energy measured start time
 	#[serde(with = "DateTimeSerde")]
-	pub start_time: NaiveDateTime,
+	pub start_time: DateTime,
 	/// The energy measured end time
 	#[serde(with = "DateTimeSerde")]
-	pub end_time: NaiveDateTime,
+	pub end_time: DateTime,
 	/// Aggregation granularity.
 	///
 	/// Default value: `DAY`
@@ -116,10 +116,10 @@ pub struct MetersDateTimeRange<'r> {
 pub struct SiteStorageData<'r> {
 	/// Storage power measured start time
 	#[serde(with = "DateTimeSerde")]
-	pub start_time: NaiveDateTime,
+	pub start_time: DateTime,
 	/// Storage power measured end time
 	#[serde(with = "DateTimeSerde")]
-	pub end_time: NaiveDateTime,
+	pub end_time: DateTime,
 	/// Return data only for specific battery serial numbers. If omitted, the response includes all the batteries in
 	/// the site.
 	#[serde(serialize_with = "serialize_comma_slice_opt")]

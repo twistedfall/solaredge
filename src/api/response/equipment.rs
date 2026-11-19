@@ -1,4 +1,4 @@
-use chrono::NaiveDateTime;
+use jiff::civil::DateTime;
 use serde::Deserialize;
 
 use super::List;
@@ -44,7 +44,7 @@ pub struct LData {
 #[serde(rename_all = "camelCase")]
 pub struct Telemetry {
 	#[serde(with = "DateTimeSerde")]
-	pub date: NaiveDateTime,
+	pub date: DateTime,
 	pub total_active_power: f64,
 	pub dc_voltage: Option<f64>,
 	pub ground_fault_resistance: Option<f64>,

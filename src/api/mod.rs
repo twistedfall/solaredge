@@ -1,4 +1,4 @@
-use chrono::{NaiveDate, NaiveDateTime, NaiveTime, ParseResult};
+use jiff::civil::{Date, DateTime};
 use serde::de::Error as _;
 use serde::ser::Error as _;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -31,31 +31,21 @@ fn serialize_comma_slice_opt<T: Serialize, S: Serializer>(slice: &Option<&[T]>, 
 	}
 }
 
-fn str_to_datetime(s: &str) -> ParseResult<NaiveDateTime> {
-	match NaiveDateTime::parse_from_str(s, "%Y-%m-%d %H:%M:%S") {
-		Ok(d) => Ok(d),
-		Err(_) => {
-			let date = NaiveDate::parse_from_str(s, "%Y-%m-%d")?;
-			Ok(NaiveDateTime::new(
-				date,
-				NaiveTime::from_hms_opt(0, 0, 0).expect("Static time"),
-			))
-		}
-	}
-}
+const DATE_FORMAT: &str = "%Y-%m-%d";
+const DATETIME_FORMAT: &str = "%Y-%m-%d %H:%M:%S";
 
-fn str_to_date(s: &str) -> ParseResult<NaiveDate> {
-	NaiveDate::parse_from_str(s, "%Y-%m-%d")
+fn str_to_datetime(s: &str) -> Result<DateTime, jiff::Error> {
+	DateTime::strptime(DATETIME_FORMAT, s).or_else(|_| Date::strptime(DATE_FORMAT, s).map(|date| date.at(0, 0, 0, 0)))
 }
 
 struct DateTimeSerde;
 
 impl DateTimeSerde {
-	fn serialize<S: Serializer>(d: &NaiveDateTime, ser: S) -> Result<S::Ok, S::Error> {
-		d.format("%Y-%m-%d %H:%M:%S").to_string().serialize(ser)
+	fn serialize<S: Serializer>(d: &DateTime, ser: S) -> Result<S::Ok, S::Error> {
+		d.strftime(DATETIME_FORMAT).to_string().serialize(ser)
 	}
 
-	fn deserialize<'d, D: Deserializer<'d>>(d: D) -> Result<NaiveDateTime, D::Error> {
+	fn deserialize<'d, D: Deserializer<'d>>(d: D) -> Result<DateTime, D::Error> {
 		let s = String::deserialize(d)?;
 		str_to_datetime(&s).map_err(|e| D::Error::custom(format!("DateTime parse error, input: {s}, error: {e}")))
 	}
@@ -65,7 +55,7 @@ struct DateTimeSerdeOpt;
 
 impl DateTimeSerdeOpt {
 	#[allow(unused)]
-	fn serialize<S: Serializer>(d: &Option<NaiveDateTime>, ser: S) -> Result<S::Ok, S::Error> {
+	fn serialize<S: Serializer>(d: &Option<DateTime>, ser: S) -> Result<S::Ok, S::Error> {
 		if let Some(d) = d {
 			DateTimeSerde::serialize(d, ser)
 		} else {
@@ -73,7 +63,7 @@ impl DateTimeSerdeOpt {
 		}
 	}
 
-	fn deserialize<'d, D: Deserializer<'d>>(d: D) -> Result<Option<NaiveDateTime>, D::Error> {
+	fn deserialize<'d, D: Deserializer<'d>>(d: D) -> Result<Option<DateTime>, D::Error> {
 		Ok(match Option::<String>::deserialize(d)? {
 			None => None,
 			Some(s) => {
@@ -86,12 +76,12 @@ impl DateTimeSerdeOpt {
 struct DateSerde;
 
 impl DateSerde {
-	fn serialize<S: Serializer>(d: &NaiveDate, ser: S) -> Result<S::Ok, S::Error> {
-		d.format("%Y-%m-%d").to_string().serialize(ser)
+	fn serialize<S: Serializer>(d: &Date, ser: S) -> Result<S::Ok, S::Error> {
+		d.strftime(DATE_FORMAT).to_string().serialize(ser)
 	}
 
-	fn deserialize<'d, D: Deserializer<'d>>(d: D) -> Result<NaiveDate, D::Error> {
+	fn deserialize<'d, D: Deserializer<'d>>(d: D) -> Result<Date, D::Error> {
 		let s = String::deserialize(d)?;
-		str_to_date(&s).map_err(|e| D::Error::custom(format!("Date parse error, input: {s}, error: {e}")))
+		Date::strptime(DATE_FORMAT, &s).map_err(|e| D::Error::custom(format!("Date parse error, input: {s}, error: {e}")))
 	}
 }
